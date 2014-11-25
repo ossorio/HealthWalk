@@ -29,5 +29,6 @@ proguard/
 *.swp
 *.bak
 *.lock
-app/.classpath
-app/.project
+.classpath
+.project
+lint.xml
