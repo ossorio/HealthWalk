@@ -1,4 +1,4 @@
-package com.asimov.test_healthwalk;
+package com.asimov.healthwalk;
 
 import android.app.Service;
 import android.content.Context;
@@ -18,11 +18,11 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-// TODO: por qué es un servicio?
-public class Localizador extends Service 
-						 implements com.google.android.gms.location.LocationListener, 
-						 			ConnectionCallbacks, 
-						 			OnConnectionFailedListener
+// TODO: por que es un servicio?
+public class LocalizadorUsuario extends Service 
+								implements com.google.android.gms.location.LocationListener, 
+										   ConnectionCallbacks, 
+										   OnConnectionFailedListener
 {
     private final Context mContext;
 
@@ -47,14 +47,13 @@ public class Localizador extends Service
     protected GoogleApiClient google_API_client;
     protected static Location VALLADOLID;
 
-    public Localizador(Context context) {
+    public LocalizadorUsuario(Context context) {
         this.mContext = context;
     	loc_manager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
     	VALLADOLID = new Location("");
     	VALLADOLID.setLatitude(41.652251);
     	VALLADOLID.setLongitude(-4.7245321);
     	location = new Location("");
-//    	locationClient = new LocationClient(context, this, this);
 		google_API_client = new GoogleApiClient.Builder(context)
                                         .addApi(LocationServices.API)
                                         .addConnectionCallbacks(this)
@@ -89,9 +88,9 @@ public class Localizador extends Service
 //    	locationClient.removeLocationUpdates(this);
     	this.location = location;
  		// TODO: PASAR ESTOS METODOS A "OBJETO"
-    	HealthWalk.eliminaMarcador(HealthWalk.marcador);
-    	HealthWalk.muestraUbicacion(this.location, "Aquí");
-    	HealthWalk.muestraDistanciaCentroSalud(this.location);
+    	MapActivity.eliminaMarcador(MapActivity.marcador);
+    	MapActivity.muestraUbicacion(this.location, "Aquí");
+    	MapActivity.muestraDistanciaCentroSalud(this.location);
     }
  
     @Override
@@ -156,36 +155,14 @@ public class Localizador extends Service
 		LocationServices.FusedLocationApi.removeLocationUpdates(google_API_client, this);	
 	}
 	
-	@Override
-	public void onConnectionSuspended(int arg0) {
-		
+	public void onDisconnected() {
+
 	}
 
-//	public void onDisconnected() {
-//		locationClient.removeLocationUpdates(this);
-//		
-//	}
-	
-//	private void compruebaProveedorUbicacion(){
-//		// Se obtiene el estado del GPS
-//        isGPSEnabled = locationManager
-//                .isProviderEnabled(LocationManager.GPS_PROVIDER);
-//
-//        // Se obtiene el estado de la red
-//        isNetworkEnabled = locationManager
-//                .isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-//
-//        if (!isGPSEnabled && !isNetworkEnabled) {
-//            Toast.makeText(this, "Debe activar los servicios de ubicación", Toast.LENGTH_LONG).show();
-//            System.exit(-1);
-//        } else {
-//        	if(isGPSEnabled)
-//        		PROVIDER = LocationManager.GPS_PROVIDER;
-//        	else if(isNetworkEnabled)
-//        		PROVIDER = LocationManager.NETWORK_PROVIDER;
-//        }
-//	}
-
+	@Override
+	public void onConnectionSuspended(int arg0) {
+		// TODO Auto-generated method stub
 		
+	}
 }
 	

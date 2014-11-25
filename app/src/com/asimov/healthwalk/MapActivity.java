@@ -1,4 +1,4 @@
-package com.asimov.test_healthwalk;
+package com.asimov.healthwalk;
 
 import android.app.Activity;
 import android.location.Location;
@@ -13,7 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class HealthWalk extends Activity {
+public class MapActivity extends Activity {
 	// TODO: Moverlo a un recurso
 	private final String STRING_AQUI = "Aquí";
 	private static String UNIDAD_DISTANCIA;
@@ -22,7 +22,7 @@ public class HealthWalk extends Activity {
 	private static GoogleMap mMap;
 	private static TextView texto;
 
-	private Localizador gps;
+	private LocalizadorUsuario gps;
 	// TODO: Cual es la diferencia entre marcador y location?
 	// Marcador que indica la ultima ubicacion actualizada
 	// TODO: Por que es estatico?
@@ -36,7 +36,7 @@ public class HealthWalk extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.fragmento_mapa);
+		setContentView(R.layout.activity_map);
 		
 		// Inicializacion de los parametros basicos para la IU
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -46,7 +46,7 @@ public class HealthWalk extends Activity {
 		mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
 		// Se crea un localizador de ubicaciones
-		gps = new Localizador(this);
+		gps = new LocalizadorUsuario(this);
 		
 		// TODO: rellenar con datos de la BD
 		centrosSalud[0] = new Location("");
