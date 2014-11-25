@@ -11,6 +11,7 @@
 # Generated files
 bin/
 gen/
+libs/
 
 # Gradle files
 .gradle/
@@ -28,3 +29,5 @@ proguard/
 *.swp
 *.bak
 *.lock
+app/.classpath
+app/.project
