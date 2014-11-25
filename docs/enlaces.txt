@@ -1,0 +1,16 @@
+Para instalarlo:
+    https://developers.google.com/maps/documentation/android/start#installing_the_google_maps_android_v2_api
+    http://developer.android.com/google/play-services/setup.html
+
+Geolocalización:
+    http://developer.android.com/guide/topics/location/strategies.html
+    http://developer.android.com/reference/android/location/package-summary.html
+    http://developer.android.com/training/location/index.html
+    http://developer.android.com/reference/com/google/android/gms/location/package-summary.html
+
+Maps:
+    https://developers.google.com/maps/documentation/android/start
+
+sqlite:
+    http://www.vogella.com/tutorials/AndroidSQLite/article.html
+    http://developer.android.com/reference/android/database/sqlite/package-summary.html

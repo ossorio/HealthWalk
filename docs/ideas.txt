@@ -1,0 +1,55 @@
+[25/11/2014] 
+    Caso de uso:
+        - El usuario quiere averiguar el centro de salud más cercano para
+          gestionar una emergencia
+
+    Rutas calientes de la aplicación:
+        - Hay una mejor localización del usuario -> el mapa se actualiza con
+          los marcadores de los centros de salud actualizados
+        - El usuario escoge un marcador del mapa -> se presenta la información
+          al usuario del centro de salud escogido
+        - El usuario cambia la gravedad de la emergencia -> se actualizan los
+          puntos que se muestran en el mapa
+        - El usuario quiere llamar al centro de salud para consultar información
+          -> la aplicación llama automáticamente
+
+    MainActivity:
+        - Llama al repositorio para que se inicialice
+        - Llama al LocalizadorUsuario para que solicite las actualizaciones en
+          el estado
+        - Presenta la pantalla de bienvenida
+        - Ser el punto de entrada para toda la información que necesita
+          UserPreferenceActivity
+
+    MapActivity:
+        - Controla la interacción principal con los mapas
+        - Recibe peticiones de redibujado (cuando el usuario selecciona algo o
+          cuando llega una localización más exacta)
+
+    HelpActivity:
+        - Gestiona la ayuda
+
+    UserPreferenceActivity:
+        - Gestiona las preferencias
+        - Accede a la información de preferencias de las demás clases
+
+    Preferences:
+        - Almacena todas las preferencias de la aplicación de forma persistente
+
+    LocalizadorUsuario:
+        - Se conecta a la api de geolocalización disponible (tanto la de google
+          como la de android)
+        - Gestiona la conexión con la api de geolocalización -> OnConnected...
+        - Informa (a quién?) de los cambios en la localización del usuario
+          cuando ésta es más precisa que la actual
+
+    RepositorioLocalizaciones:
+        - Gestiona la conexión con la base de datos
+        - Ofrece los centros de salud más cercanos a un punto dado en un radio
+          determinado
+
+
+    Preguntas abiertas:
+        - ¿Cómo se calculan distancias realistas?
+        - ¿Cómo es la gestión de eventos en los mapas?
+        - ¿cómo vamos a gestionar los implicit intents para hacer las llamadas?

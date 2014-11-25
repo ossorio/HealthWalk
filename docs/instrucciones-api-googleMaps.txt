@@ -1,1 +1,0 @@
-https://developers.google.com/maps/documentation/android/start#installing_the_google_maps_android_v2_api
