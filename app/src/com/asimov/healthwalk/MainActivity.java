@@ -2,12 +2,13 @@ package com.asimov.healthwalk;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-
-import com.asimov.healthwalk.RepositorioLocalizaciones;
 
 
 public class MainActivity extends Activity {
@@ -19,8 +20,15 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		Log.d(TAG, "Lanzando MainActivity");
 		// TODO: gestionar ciclo de vida del repositorio
 		repositorio = new RepositorioLocalizaciones(this, BASE_DATOS, TAG);
+		Location loc = new Location("");
+		loc.setLatitude(41.6344462);
+		loc.setLongitude(-4.7478554);
+		Cursor centros_salud = repositorio.getCentrosSalud(loc, 1000);
+		centros_salud.moveToFirst();
+		Log.d(TAG, Integer.toString(centros_salud.getCount()));
 
 		SetupButtonHelp();
 		SetupButtonMuyGrave();

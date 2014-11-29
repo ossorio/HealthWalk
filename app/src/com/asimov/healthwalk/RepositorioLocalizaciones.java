@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.location.Location;
@@ -16,6 +17,7 @@ import android.util.Log;
 public class RepositorioLocalizaciones {
 	private Context mContext;
 	private final int TAM_BUFFER = 1024;
+	private final String TABLE = "localizaciones";
 	private String nombre_bd;
 	private final String TAG;
 	private SQLiteDatabase bd;
@@ -31,6 +33,35 @@ public class RepositorioLocalizaciones {
 
 	public void close(){
 		bd.close();
+	}
+	
+	public Cursor getCentrosSalud(Location desde, double radio){
+		// TODO: Como testeamos este metodo?
+		String[] columnas = {"_id", "Latitud", "Longitud"};
+		Cursor cursor = bd.query(true, TABLE, columnas, "", null, "", "", "", "", null);
+		cursor.moveToFirst();
+		String ids = "";
+		while(cursor.isAfterLast() == false){
+			double lat = cursor.getDouble(1);
+			double lon = cursor.getDouble(2);
+			Location punto = new Location("");
+			punto.setLatitude(lat);
+			punto.setLongitude(lon);
+			double distancia = punto.distanceTo(desde);
+			if(distancia < radio){
+				if(ids.length() == 0){
+					ids += Integer.toString(cursor.getInt(0));
+				}else{
+					ids += "," + Integer.toString(cursor.getInt(0));
+				}
+			}
+			cursor.moveToNext();
+		}
+		
+		// TODO: hay que meter placeholders
+		String[] columnas_consulta = {"_id", "Nombre", "Telefono", "Latitud", "Longitud"};
+		return bd.query(true, TABLE, columnas_consulta, "_id in (" + ids + ")", null, "", "", "", "", null);
+
 	}
 	
 	public void setBaseDatos(String base_datos){
