@@ -7,11 +7,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.asimov.healthwalk.RepositorioLocalizaciones;
+
 
 public class MainActivity extends Activity {
+	private RepositorioLocalizaciones repositorio;
+	private final String BASE_DATOS = "localizaciones";
+	private final String TAG = "HealthWalk";
+
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		// TODO: gestionar ciclo de vida del repositorio
+		repositorio = new RepositorioLocalizaciones(this, BASE_DATOS, TAG);
 
 		SetupButtonHelp();
 		SetupButtonMuyGrave();
