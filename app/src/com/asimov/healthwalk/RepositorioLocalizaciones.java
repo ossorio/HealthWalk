@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -13,72 +15,93 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.location.Location;
 import android.util.Log;
+import android.widget.Toast;
 
 public class RepositorioLocalizaciones {
 	private Context mContext;
 	private final int TAM_BUFFER = 1024;
 	private final String TABLE = "localizaciones";
-	private String nombre_bd;
 	private final String TAG;
-	private SQLiteDatabase bd;
+	private String nombre_bd = null;
+	private SQLiteDatabase bd = null;
 
 	RepositorioLocalizaciones(Context contexto, String base_datos, String log_tag){
 		TAG = log_tag;
 		mContext = contexto;
 		setBaseDatos(base_datos);
-		String path = getPathBD();
-		bd = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
-		Log.d(TAG, "Base de datos abierta desde " + path);
+		start();
 	}
 
-	public void close(){
-		bd.close();
+	public void stop(){
+		if(bd != null){
+			bd.close();
+		}
+	}
+	
+	public void start(){
+		if(nombre_bd != null){
+			String path = getPathBD();
+			bd = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
+			Log.d(TAG, "Base de datos abierta desde " + path);
+		}
 	}
 	
 	public Cursor getCentrosSalud(Location desde, double radio){
-		// TODO: Como testeamos este metodo?
-		String[] columnas = {"_id", "Latitud", "Longitud"};
-		Cursor cursor = bd.query(true, TABLE, columnas, "", null, "", "", "", "", null);
-		cursor.moveToFirst();
-		String ids = "";
-		while(cursor.isAfterLast() == false){
-			double lat = cursor.getDouble(1);
-			double lon = cursor.getDouble(2);
-			Location punto = new Location("");
-			punto.setLatitude(lat);
-			punto.setLongitude(lon);
-			double distancia = punto.distanceTo(desde);
-			if(distancia < radio){
-				if(ids.length() == 0){
-					ids += Integer.toString(cursor.getInt(0));
-				}else{
-					ids += "," + Integer.toString(cursor.getInt(0));
+		// TODO: Hay que testearlo con el mapa
+		if(bd != null){
+			String[] columnas = {"_id", "Latitud", "Longitud"};
+			Cursor cursor = bd.query(true, TABLE, columnas, "", null, "", "", "", "", null);
+			cursor.moveToFirst();
+			List<String> ids = new ArrayList<String>();
+			while(cursor.isAfterLast() == false){
+				double lat = cursor.getDouble(1);
+				double lon = cursor.getDouble(2);
+				Location punto = new Location("");
+				punto.setLatitude(lat);
+				punto.setLongitude(lon);
+				double distancia = punto.distanceTo(desde);
+				if(distancia < radio){
+					ids.add(Integer.toString(cursor.getInt(0)));
 				}
+				cursor.moveToNext();
 			}
-			cursor.moveToNext();
+			String[] columnas_consulta = {"_id", "Nombre", "Telefono", "Latitud", "Longitud"};
+
+			return bd.query(true, TABLE, columnas_consulta, 
+							"_id in (" + placeholders(ids.size()) + ")", ids.toArray(new String[ids.size()]), 
+							"", "", "", "", null);
 		}
 		
-		// TODO: hay que meter placeholders
-		String[] columnas_consulta = {"_id", "Nombre", "Telefono", "Latitud", "Longitud"};
-		return bd.query(true, TABLE, columnas_consulta, "_id in (" + ids + ")", null, "", "", "", "", null);
-
+		return null;
+	}
+	
+	private String placeholders(int numero){
+		String ret = "";
+		for(int i = 0; i < numero; i++){
+			if(i == 0){
+				ret += "?";
+			}else{
+				ret += ", ?";
+			}
+		}
+		return ret;
 	}
 	
 	public void setBaseDatos(String base_datos){
 		String path_bd = getPathBD(base_datos);
+		nombre_bd = base_datos;
 		if(!existeBaseDatos(path_bd)){
 			Log.d(TAG, "Creando base de datos");
-			// TODO: gestionar excepciones propias
 			copiarBaseDatos();
 		}else{
 			Log.d(TAG, "La base de datos ya existe");
-			nombre_bd = base_datos;
 		}
 	}
 	
 	public String getPathBD(String base_datos){
-		// TODO: usar getFilesDir
-		return "/data/data/com.asimov.healthwalk/databases/" + base_datos;
+		File files_dir = mContext.getFilesDir();
+		File data_path = files_dir.getParentFile();
+		return data_path.getAbsolutePath() + "/databases/" + base_datos;
 	}
 	
 	public String getPathBD(){
@@ -90,15 +113,16 @@ public class RepositorioLocalizaciones {
 		try{
 			input = mContext.getAssets().open(nombre_bd);
 		} catch(IOException e){
-			// TODO: deberiamos informar al usuario
 			Log.e(TAG, "No se ha encontrado a " + nombre_bd + " en el directorio assets.");
+			nombre_bd = null;
+			Toast toast = Toast.makeText(mContext, R.string.databaseError, Toast.LENGTH_LONG);
+			toast.show();
 			return;
 		}
 
 		String path_bd = getPathBD();
 		File databases = new File(path_bd).getParentFile();
 		if(!databases.exists()){
-			// TODO: deberiamos informar al usuario
 			Log.d(TAG, "Creando directorio databases en " + databases.getAbsolutePath());
 			databases.mkdir();
 		}
@@ -106,8 +130,10 @@ public class RepositorioLocalizaciones {
 		try {
 			output = new FileOutputStream(path_bd);
 		} catch (FileNotFoundException e) {
-			// TODO: deberiamos informar al usuario
-			Log.e(TAG, "No se ha encontrado la base de datos " + nombre_bd + " en " + path_bd);
+			Log.e(TAG, "No se ha podido abrir la base de datos " + nombre_bd + " en " + path_bd);
+			nombre_bd = null;
+			Toast toast = Toast.makeText(mContext, R.string.databaseError, Toast.LENGTH_LONG);
+			toast.show();
 			try {
 				input.close();
 			} catch (IOException e1) {
@@ -125,20 +151,17 @@ public class RepositorioLocalizaciones {
 		}
 		Log.d(TAG, "Base de datos copiada");
 		
-		// TODO: todo esto es traumatico
 		try {
 			output.flush();
-		} catch (IOException e) {
-		}
-
-		try {
 			output.close();
 		} catch (IOException e) {
+			Log.e(TAG, "Error al cerrar output al copiar la base de datos.");
 		}
 
 		try {
 			input.close();
 		} catch (IOException e) {
+			Log.e(TAG, "Error al cerrar input al copiar la base de datos.");
 		}
 	}
 	

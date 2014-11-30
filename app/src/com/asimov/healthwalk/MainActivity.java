@@ -23,12 +23,16 @@ public class MainActivity extends Activity {
 		Log.d(TAG, "Lanzando MainActivity");
 		// TODO: gestionar ciclo de vida del repositorio
 		repositorio = new RepositorioLocalizaciones(this, BASE_DATOS, TAG);
+		
+		// Testear el repositorio
 		Location loc = new Location("");
 		loc.setLatitude(41.6344462);
 		loc.setLongitude(-4.7478554);
 		Cursor centros_salud = repositorio.getCentrosSalud(loc, 1000);
-		centros_salud.moveToFirst();
-		Log.d(TAG, Integer.toString(centros_salud.getCount()));
+		if(centros_salud != null){
+			centros_salud.moveToFirst();
+			Log.d(TAG, Integer.toString(centros_salud.getCount()));
+		}
 
 		SetupButtonHelp();
 		SetupButtonMuyGrave();
