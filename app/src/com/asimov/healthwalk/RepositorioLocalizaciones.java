@@ -32,14 +32,24 @@ public class RepositorioLocalizaciones {
 		start();
 	}
 
+	/*
+	 * Parar la base de datos, normalmente se hace en el metodo onPause de la 
+	 * actividad que haya instaciado esta clase 
+	 */
 	public void stop(){
 		if(bd != null){
 			bd.close();
+			bd = null;
+			Log.d(TAG, "Base de datos cerrada");
 		}
 	}
 	
+	/*
+	 * Arrancar la base de datos, normalmente se hace en el metodo onResume
+	 * de la actividad que haya instanciado esta clase
+	 */
 	public void start(){
-		if(nombre_bd != null){
+		if(nombre_bd != null && bd == null){
 			String path = getPathBD();
 			bd = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
 			Log.d(TAG, "Base de datos abierta desde " + path);

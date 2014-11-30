@@ -16,6 +16,7 @@ public class MainActivity extends Activity {
 	private final String BASE_DATOS = "localizaciones";
 	private final String TAG = "HealthWalk";
 
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -32,6 +33,8 @@ public class MainActivity extends Activity {
 		if(centros_salud != null){
 			centros_salud.moveToFirst();
 			Log.d(TAG, Integer.toString(centros_salud.getCount()));
+		}else{
+			Log.d(TAG, "No hay resultados para la consulta.");
 		}
 
 		SetupButtonHelp();
@@ -41,6 +44,18 @@ public class MainActivity extends Activity {
 		SetupButtonLeve();
 	}
 	
+	@Override
+	protected void onPause(){
+		super.onPause();
+		repositorio.stop();
+	}
+	
+	@Override
+	protected void onResume(){
+		super.onResume();
+		repositorio.start();
+	}
+
 	private void SetupButtonHelp() {
 		Button buttonHelp = (Button) findViewById(R.id.buttonHelp);
 		buttonHelp.setOnClickListener(new OnClickListener() {
