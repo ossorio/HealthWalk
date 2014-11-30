@@ -56,9 +56,14 @@ public class RepositorioLocalizaciones {
 		}
 	}
 	
+	/*
+	 * Devuelve los centros de salud separados de desde una distancia menor a radio.
+	 * Esta metodo respeta la interfaz de cursores de las consultas sqlite.
+	 */
 	public Cursor getCentrosSalud(Location desde, double radio){
 		// TODO: Hay que testearlo con el mapa
 		if(bd != null){
+			// Averiguamos los ids de los centros de salud que están cerca de desde
 			String[] columnas = {"_id", "Latitud", "Longitud"};
 			Cursor cursor = bd.query(true, TABLE, columnas, "", null, "", "", "", "", null);
 			cursor.moveToFirst();
@@ -75,8 +80,9 @@ public class RepositorioLocalizaciones {
 				}
 				cursor.moveToNext();
 			}
-			String[] columnas_consulta = {"_id", "Nombre", "Telefono", "Latitud", "Longitud"};
 
+			// Devolvemos los resultados de la consulta
+			String[] columnas_consulta = {"_id", "Nombre", "Telefono", "Latitud", "Longitud"};
 			return bd.query(true, TABLE, columnas_consulta, 
 							"_id in (" + placeholders(ids.size()) + ")", ids.toArray(new String[ids.size()]), 
 							"", "", "", "", null);
@@ -85,9 +91,12 @@ public class RepositorioLocalizaciones {
 		return null;
 	}
 	
-	private String placeholders(int numero){
+	/*
+	 * Devuelve un string con un numero n de interrogaciones
+	 */
+	private String placeholders(int n){
 		String ret = "";
-		for(int i = 0; i < numero; i++){
+		for(int i = 0; i < n; i++){
 			if(i == 0){
 				ret += "?";
 			}else{
@@ -97,6 +106,9 @@ public class RepositorioLocalizaciones {
 		return ret;
 	}
 	
+	/*
+	 * Setter de bd
+	 */
 	public void setBaseDatos(String base_datos){
 		String path_bd = getPathBD(base_datos);
 		nombre_bd = base_datos;
@@ -108,17 +120,28 @@ public class RepositorioLocalizaciones {
 		}
 	}
 	
+	/*
+	 * Devuelve la ruta en el sistema de ficheros de una base de datos pasada como argumento
+	 */
 	public String getPathBD(String base_datos){
 		File files_dir = mContext.getFilesDir();
 		File data_path = files_dir.getParentFile();
 		return data_path.getAbsolutePath() + "/databases/" + base_datos;
 	}
 	
+	/*
+	 * Metodo sobrecargado para ofrecer un comportamiento por defecto cuando no se pasa ningun
+	 * argumento a getPathBD(String)
+	 */
 	public String getPathBD(){
 		return getPathBD(nombre_bd);
 	}
 
+	/*
+	 * Copia la base de datos del directorio assets al directorio databases de la aplicacion
+	 */
 	private void copiarBaseDatos(){
+		// Abrimos input en el directorio assets
 		InputStream input = null;
 		try{
 			input = mContext.getAssets().open(nombre_bd);
@@ -130,12 +153,15 @@ public class RepositorioLocalizaciones {
 			return;
 		}
 
+		// Creamos el directorio databases si este no existe en el directorio data
 		String path_bd = getPathBD();
 		File databases = new File(path_bd).getParentFile();
 		if(!databases.exists()){
 			Log.d(TAG, "Creando directorio databases en " + databases.getAbsolutePath());
 			databases.mkdir();
 		}
+		
+		// Abrimos output en el directorio de destino
 		OutputStream output;
 		try {
 			output = new FileOutputStream(path_bd);
@@ -151,6 +177,7 @@ public class RepositorioLocalizaciones {
 			return;
 		}
 		
+		// Realizamos la copia
 		byte[] buffer = new byte[TAM_BUFFER];
 		int length;
 		try{
@@ -161,13 +188,13 @@ public class RepositorioLocalizaciones {
 		}
 		Log.d(TAG, "Base de datos copiada");
 		
+		// Cerramos output e input
 		try {
 			output.flush();
 			output.close();
 		} catch (IOException e) {
 			Log.e(TAG, "Error al cerrar output al copiar la base de datos.");
 		}
-
 		try {
 			input.close();
 		} catch (IOException e) {
@@ -175,6 +202,9 @@ public class RepositorioLocalizaciones {
 		}
 	}
 	
+	/*
+	 * Comprueba si existe la base de datos pasada como argumento
+	 */
 	private boolean existeBaseDatos(String path_bd){
 		SQLiteDatabase checkDB = null;
 		try{
