@@ -12,10 +12,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,7 +23,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
-// TODO: por que es un servicio?
 public class LocalizadorUsuario extends Service 
 								implements com.google.android.gms.location.LocationListener, 
 										   ConnectionCallbacks, 
@@ -39,37 +38,44 @@ public class LocalizadorUsuario extends Service
     private MapActivity map;
     
 	private String UNIDAD_DISTANCIA;
-    // Atributos para almacenar la localización
-    private Location location;
-    private double latitud; 
-    private double longitud;
+	
+	// Indica si los servicios de Google Play están activados
+    protected boolean serviciosActivados;
     
     // Ubicacion inicial por defecto (Valladolid capital).
     protected Location VALLADOLID;
     
-    // Parametros para controlar la precision de la localizacion
-
+    
     private String PROVIDER;
+   
+    // Variables para calcular la distancia al centro de salud mas proximo
+    private float minDistancia;
+    private float distancia;
+    
     // Gestor de ubicaciones
     protected LocationManager loc_manager;
-    protected LocationClient loc_client;
+
     private LocationRequest loc_request;
+    
+    // Cliente de la API de Google
     protected GoogleApiClient google_API_client;
 
 
     public LocalizadorUsuario(Context context) {
     	map = (MapActivity) context;
+    	serviciosActivados = servicesConnected();
     	mContext = context;
     	loc_manager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
     	VALLADOLID = new Location("");
     	VALLADOLID.setLatitude(41.652251);
     	VALLADOLID.setLongitude(-4.7245321);
-    	location = new Location("");
+
 		google_API_client = new GoogleApiClient.Builder(mContext)
                                         .addApi(LocationServices.API)
                                         .addConnectionCallbacks(this)
                                         .addOnConnectionFailedListener(this)
                                         .build();
+		
 		// TODO: los argumentos deberian poder modificarse en preferences
 		loc_request = LocationRequest.create();
 		loc_request.setFastestInterval(400);
@@ -77,36 +83,17 @@ public class LocalizadorUsuario extends Service
 		loc_request.setSmallestDisplacement(5);
     }
 
-    protected Location getLocation() {
-    	if(map.serviciosActivados){
-    		if(google_API_client.isConnected()){
-    			location = LocationServices.FusedLocationApi.getLastLocation(google_API_client);
-    			latitud = location.getLatitude();
-    			longitud = location.getLongitude();
-    		}
-    		
-    	}else{
-    		if(loc_manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-    			PROVIDER = LocationManager.GPS_PROVIDER;
-    		if(loc_manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-    			PROVIDER = LocationManager.NETWORK_PROVIDER;
-    		location = loc_manager.getLastKnownLocation(PROVIDER);
-    	}
-    	
-        return location;
-    }
     
     /*
      * Funcion usada cuando el dispositivo cambia de ubicacion
      */
     @Override
     public void onLocationChanged(Location location) {
-    	this.location = location;
- 		// TODO: PASAR ESTOS METODOS A "OBJETO"
+    	map.location = location;
     	if(map.marcadorUbicacionActual != null)
     		eliminaMarcador(map.marcadorUbicacionActual);
-    	muestraUbicacion(this.location, mContext.getString(R.string.ubicacionActual));
-    	muestraDistanciaCentroSalud(this.location);
+    	muestraUbicacion(map.location, mContext.getString(R.string.ubicacionActual));
+    	muestraDistanciaCentroSalud(map.location);
     }
  
     @Override
@@ -114,25 +101,6 @@ public class LocalizadorUsuario extends Service
         return null;
     }
     
-    /*
-     * Funcion que devuelve la latitud de la ubicacion 
-     */
-    protected double getLatitude(){
-        if(location != null){
-            latitud = location.getLatitude();
-        }
-        return latitud;
-    }
-     
-    /*
-     * Funcion que devuelve la longitud de la ubicacion 
-     */
-    protected double getLongitude(){
-        if(location != null){
-            longitud = location.getLongitude();
-        }
-        return longitud;
-    }
     
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
@@ -168,13 +136,36 @@ public class LocalizadorUsuario extends Service
 	        google_API_client, loc_request, this);
 	    }
 	}
-
-	protected void pararActualizaciones(){
-		LocationServices.FusedLocationApi.removeLocationUpdates(google_API_client, this);	
+	
+	protected void solicitarActualizaciones(){
+		if(!google_API_client.isConnected())
+			google_API_client.connect();
 	}
 	
-	public void onDisconnected() {
+	protected void pararActualizaciones(){
+		if(google_API_client.isConnected()){
+			LocationServices.FusedLocationApi.removeLocationUpdates(google_API_client, this);	
+			google_API_client.disconnect();
+		}
 		
+	}
+	
+	protected void pararActualizacionesSinServicios(){
+		if(map.solicitandoActualizaciones){
+			loc_manager.removeUpdates(this);
+			map.solicitandoActualizaciones = false;
+		}
+	}
+	
+	protected void solicitarActualizacionesSinServicios(){
+		if(loc_manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
+			PROVIDER = LocationManager.GPS_PROVIDER;
+		if(loc_manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+			PROVIDER = LocationManager.NETWORK_PROVIDER;
+		if(!map.solicitandoActualizaciones){
+			loc_manager.requestLocationUpdates(PROVIDER, Utils.TIEMPO_MINIMO, Utils.DISTANCIA_MINIMA, this);
+			map.solicitandoActualizaciones = true;
+		}
 	}
 
 	@Override
@@ -183,14 +174,6 @@ public class LocalizadorUsuario extends Service
 		
 	}
 	
-	protected void pararActualizacionesSinServicios(){
-		loc_manager.removeUpdates(this);
-	}
-	
-	protected void solicitarActualizacionesSinServicios(){
-		loc_manager.requestLocationUpdates(PROVIDER, Utils.TIEMPO_MINIMO, Utils.DISTANCIA_MINIMA, this);
-	}
-
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
@@ -242,9 +225,12 @@ public class LocalizadorUsuario extends Service
 		map.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
 	}
 	
+	/*
+	 * Calcula la distancia al centro de salud más cercano
+	 */
 	private float calculaDistanciaCentroSalud(Location locActual){
-		float minDistancia = Math.round(locActual.distanceTo(map.centrosSalud[0]));
-		float distancia;
+		minDistancia = Math.round(locActual.distanceTo(map.centrosSalud[0]));
+
 		int i = 1;
 
 		while(map.centrosSalud[i] != null && i < map.centrosSalud.length){
@@ -265,9 +251,38 @@ public class LocalizadorUsuario extends Service
 		return minDistancia;
 	}
 	
+	/*
+	 * Muestra la distancia al centro de salud más cercano
+	 */
 	protected void muestraDistanciaCentroSalud(Location locActual){
 		float distancia = calculaDistanciaCentroSalud(locActual);
 		map.texto.setText(mContext.getString(R.string.distanciaACentroSalud) + " " + distancia + " " + UNIDAD_DISTANCIA);
 	}
+
+	@Override
+	public void onDisconnected() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private boolean servicesConnected() {
+		// Comprueba que los servicios de Google Play estén disponibles
+		int resultCode =
+				GooglePlayServicesUtil.
+				isGooglePlayServicesAvailable(map);
+		// Si los servicios de Google Play están disponibles
+		if (ConnectionResult.SUCCESS == resultCode) {
+			// Escritura en el log para depuracion
+			Log.d(Utils.ASIMOV,
+					"Los servicios de Google Play están disponibles.");
+			// Confirmacion de que los servicios estan disponibles
+			return true;
+			// Los servicios de Google Play no estan disponibles por alguna razon.
+		} else {
+			Log.d(Utils.ASIMOV,"Los servicios de Google Play NO están disponibles.");
+			return false;
+		}
+	}
+	
 }
 	
