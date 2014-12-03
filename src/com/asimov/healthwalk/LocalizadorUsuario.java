@@ -18,6 +18,10 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 // TODO: por que es un servicio?
 public class LocalizadorUsuario extends Service 
@@ -34,6 +38,7 @@ public class LocalizadorUsuario extends Service
     private boolean red_activada = false;
     private MapActivity map;
     
+	private String UNIDAD_DISTANCIA;
     // Atributos para almacenar la localización
     private Location location;
     private double latitud; 
@@ -43,8 +48,6 @@ public class LocalizadorUsuario extends Service
     protected Location VALLADOLID;
     
     // Parametros para controlar la precision de la localizacion
-    private static final long DISTANCIA_MINIMA = 10; // 10 metros
-    private static final long TIEMPO_MINIMO = 1000 * 1; // 1 segundos
 
     private String PROVIDER;
     // Gestor de ubicaciones
@@ -55,21 +58,21 @@ public class LocalizadorUsuario extends Service
 
 
     public LocalizadorUsuario(Context context) {
-    	map = new MapActivity();
-    	this.mContext = context;
+    	map = (MapActivity) context;
+    	mContext = context;
     	loc_manager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
     	VALLADOLID = new Location("");
     	VALLADOLID.setLatitude(41.652251);
     	VALLADOLID.setLongitude(-4.7245321);
     	location = new Location("");
-		google_API_client = new GoogleApiClient.Builder(context)
+		google_API_client = new GoogleApiClient.Builder(mContext)
                                         .addApi(LocationServices.API)
                                         .addConnectionCallbacks(this)
                                         .addOnConnectionFailedListener(this)
                                         .build();
 		// TODO: los argumentos deberian poder modificarse en preferences
 		loc_request = LocationRequest.create();
-		loc_request.setFastestInterval(500);
+		loc_request.setFastestInterval(400);
 		loc_request.setInterval(5000).setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 		loc_request.setSmallestDisplacement(5);
     }
@@ -100,10 +103,10 @@ public class LocalizadorUsuario extends Service
     public void onLocationChanged(Location location) {
     	this.location = location;
  		// TODO: PASAR ESTOS METODOS A "OBJETO"
-    	if(MapActivity.marcadorUbicacionActual != null)
-    		map.eliminaMarcador(MapActivity.marcadorUbicacionActual);
-    	map.muestraUbicacion(this.location, MapActivity.STRING_AQUI);
-    	map.muestraDistanciaCentroSalud(this.location);
+    	if(map.marcadorUbicacionActual != null)
+    		eliminaMarcador(map.marcadorUbicacionActual);
+    	muestraUbicacion(this.location, mContext.getString(R.string.ubicacionActual));
+    	muestraDistanciaCentroSalud(this.location);
     }
  
     @Override
@@ -114,7 +117,7 @@ public class LocalizadorUsuario extends Service
     /*
      * Funcion que devuelve la latitud de la ubicacion 
      */
-    public double getLatitude(){
+    protected double getLatitude(){
         if(location != null){
             latitud = location.getLatitude();
         }
@@ -124,7 +127,7 @@ public class LocalizadorUsuario extends Service
     /*
      * Funcion que devuelve la longitud de la ubicacion 
      */
-    public double getLongitude(){
+    protected double getLongitude(){
         if(location != null){
             longitud = location.getLongitude();
         }
@@ -185,7 +188,7 @@ public class LocalizadorUsuario extends Service
 	}
 	
 	protected void solicitarActualizacionesSinServicios(){
-		loc_manager.requestLocationUpdates(PROVIDER, TIEMPO_MINIMO, DISTANCIA_MINIMA, this);
+		loc_manager.requestLocationUpdates(PROVIDER, Utils.TIEMPO_MINIMO, Utils.DISTANCIA_MINIMA, this);
 	}
 
 	@Override
@@ -203,6 +206,68 @@ public class LocalizadorUsuario extends Service
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
+	}
+	
+	/*
+	 * Muestra un marcador sobre la ubicacion con una etiqueta
+	 */
+	protected Marker agregaMarcador(Location location, String etiqueta, float color){
+		LatLng posicion = new LatLng(location.getLatitude(), location.getLongitude());
+		map.opcionesMarcador.position(posicion);
+		map.opcionesMarcador.title(etiqueta);
+		map.opcionesMarcador.icon(BitmapDescriptorFactory
+		        .defaultMarker(color));
+		
+		return map.mMap.addMarker(map.opcionesMarcador);
+	}
+	
+	protected void eliminaMarcador(Marker marker){
+		marker.remove();
+	}
+	
+	/*
+	 * Primero muestra un marcador sobre la ubicacion y despues realiza un
+	 * "zoom" sobre la posicion
+	 */
+	protected void muestraUbicacion(Location location, String etiqueta){
+		map.marcadorUbicacionActual = agregaMarcador(location, etiqueta, Utils.COLOR_MARCADOR_UBICACION_ACTUAL);
+		zoom(location);
+	}
+	
+	/*
+	 * Situa la panoramica del mapa sobre una ubicacion
+	 */
+	protected void zoom(Location location){
+		LatLng posicion = new LatLng(location.getLatitude(), location.getLongitude());
+		map.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
+	}
+	
+	private float calculaDistanciaCentroSalud(Location locActual){
+		float minDistancia = Math.round(locActual.distanceTo(map.centrosSalud[0]));
+		float distancia;
+		int i = 1;
+
+		while(map.centrosSalud[i] != null && i < map.centrosSalud.length){
+			distancia = Math.round(locActual.distanceTo(map.centrosSalud[i]));
+			if(distancia < minDistancia)
+				minDistancia =	distancia;
+				i++;
+		}
+
+		if(minDistancia >= 1000){
+			minDistancia -= minDistancia % 10;
+			minDistancia /= 1000;
+			UNIDAD_DISTANCIA = "Km";
+		}else{
+			UNIDAD_DISTANCIA = "metros";
+		}
+
+		return minDistancia;
+	}
+	
+	protected void muestraDistanciaCentroSalud(Location locActual){
+		float distancia = calculaDistanciaCentroSalud(locActual);
+		map.texto.setText(mContext.getString(R.string.distanciaACentroSalud) + " " + distancia + " " + UNIDAD_DISTANCIA);
 	}
 }
 	
