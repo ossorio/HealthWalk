@@ -39,7 +39,7 @@ public class LocalizadorUsuario extends Service
     
 	private String UNIDAD_DISTANCIA;
 	
-	// Indica si los servicios de Google Play están activados
+	// Indica si los servicios de Google Play estan activados
     protected boolean serviciosActivados;
     
     // Ubicacion inicial por defecto (Valladolid capital).
@@ -226,7 +226,7 @@ public class LocalizadorUsuario extends Service
 	}
 	
 	/*
-	 * Calcula la distancia al centro de salud más cercano
+	 * Calcula la distancia al centro de salud mas cercano
 	 */
 	private float calculaDistanciaCentroSalud(Location locActual){
 		minDistancia = Math.round(locActual.distanceTo(map.centrosSalud[0]));
@@ -270,7 +270,7 @@ public class LocalizadorUsuario extends Service
 		int resultCode =
 				GooglePlayServicesUtil.
 				isGooglePlayServicesAvailable(map);
-		// Si los servicios de Google Play están disponibles
+		// Si los servicios de Google Play estan disponibles
 		if (ConnectionResult.SUCCESS == resultCode) {
 			// Escritura en el log para depuracion
 			Log.d(Utils.ASIMOV,

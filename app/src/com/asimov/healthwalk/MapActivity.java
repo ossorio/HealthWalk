@@ -7,8 +7,6 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.Marker;
@@ -48,6 +46,7 @@ public class MapActivity extends Activity {
 		// Inicializacion de los parametros basicos para la IU
 		location = new Location("");
 		opcionesMarcador = new MarkerOptions();
+		// TODO: Si el terminal no tiene google services, mMap es null
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.getUiSettings().setZoomControlsEnabled(true);
 		mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -109,7 +108,7 @@ public class MapActivity extends Activity {
 			gps.eliminaMarcador(marcadorUbicacionActual);
 			marcadorUbicacionActual = null;
 		}
-		// Si la localizacion obtenida es nula (aún no se ha calculado la actual)
+		// Si la localizacion obtenida es nula (aun no se ha calculado la actual)
 		if(location.getLatitude() == 0 && location.getLongitude() == 0){
 			gps.zoom(gps.VALLADOLID);
 			texto.setText(getResources().getString(R.string.distanciaACentroSalud) + " " + getResources().getString(R.string.ubicando));

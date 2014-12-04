@@ -39,7 +39,17 @@
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MapActivity"
+            android:label="@string/map_activity" >
+            <intent-filter>
+                <!-- Para permitir lanzar por separado desde Eclipse ambas Actividades 
+                     hasta que las juntemos añadimos MapActivity como actividad por defecto
+                -->
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
