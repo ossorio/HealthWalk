@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">HealthWalk</string>
+	<string name="sinDestinoMapa">Seleccione el destino</string>
+	<string name="databaseError">La base de datos no pudo cargarse, algunas ubicaciones no se han encontrado.</string>
+    <string name="ubicando">Ubicando&#8230;</string>
+    <string name="distanciaACentroSalud">Distancia: </string>
+    <string name="ubicacionActual">Usted está aquí</string>
+	
+</resources>
