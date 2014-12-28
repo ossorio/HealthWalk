@@ -25,9 +25,7 @@
             android:layout_marginTop="2dip"
             android:text="@string/sinDestinoMapa"
             android:textAppearance="?android:attr/textAppearanceLarge" 
-			android:gravity="center"/>
-        	<!--  android:layout_alignParentBottom="true" -->
-            <!--  android:layout_centerHorizontal="true" -->
+            android:gravity="center"/>
     </RelativeLayout>
 
 </RelativeLayout>

@@ -37,10 +37,8 @@ public class MainActivity extends Activity {
 			Log.d(TAG, "No hay resultados para la consulta.");
 		}
 
-		SetupButtonHelp();
 		SetupButtonMuyGrave();
 		SetupButtonGrave();
-		SetupButtonNormal();
 		SetupButtonLeve();
 	}
 	
@@ -56,16 +54,6 @@ public class MainActivity extends Activity {
 		repositorio.start();
 	}
 
-	private void SetupButtonHelp() {
-		Button buttonHelp = (Button) findViewById(R.id.buttonHelp);
-		buttonHelp.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				startActivity(new Intent(MainActivity.this, HelpActivity.class));
-			}
-		});
-	}
-	
 	private void SetupButtonMuyGrave() {
 		Button buttonHelp = (Button) findViewById(R.id.buttonMuyGrave);
 		buttonHelp.setOnClickListener(new OnClickListener() {
@@ -78,16 +66,6 @@ public class MainActivity extends Activity {
 	
 	private void SetupButtonGrave() {
 		Button buttonHelp = (Button) findViewById(R.id.buttonGrave);
-		buttonHelp.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				
-			}
-		});
-	}
-	
-	private void SetupButtonNormal() {
-		Button buttonHelp = (Button) findViewById(R.id.buttonNormal);
 		buttonHelp.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

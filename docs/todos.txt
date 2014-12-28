@@ -1,0 +1,41 @@
+Stoyan:
+    - Hay que eliminar los warnings de los layouts
+    - Hay que añadir menús contextuales con las opciones comunes como Ayuda y
+      Acerca de
+    - Hay que hacer la actividad de Ayuda y Acerca de y contectarla a MapActivity
+    - Hace falta el icono de la aplicación y que sea escalable para los distintos
+      factores de forma
+    - Traducir la aplicación a inglés y bulgaro
+    - Escoger solo un background
+
+Alejandro y Oscar:
+    - javadoc
+    - Utilizar Log.d en momentos clave para facilitar la depuración
+    - Investigar cómo imprimir las rutas en el mapa y calcular distancias reales,
+      no en linea recta
+
+Alejandro:
+    - Enganchar MapActivity con RepositorioLocalizaciones
+    - Gestionar ciclo de vida del repositorio
+    - Implementar interfaz ObservadorLocalizaciones con el MapActivity
+    - Enganchar MapActivity con LocalizadorUsuario
+    - Enganchar MapActivity con el implicit intent de realizar la llamada
+
+    - Enganchar MainActivity con MapActivity si al final metemos MainActivity
+    - Implementar Preferencias si al final metemos preferencias
+
+Oscar:
+    - Implementar el patrón observador entre LocalizadorUsuario y MapActivity. La
+      interfaz de los observadores es ObservadorLocalizaciones y el método que se
+      llama de ésa interfaz cuando hay una nueva localización disponible es
+      cambioLocalizacion
+    - Revisar los métodos/atributos del LocalizadorUsuario para ver si se pueden
+      eliminar algunos, crear otros nuevos o cambiar su implementación, por
+      ejemplo mirar onStatusChanged, onConnectionSuspended...
+    - Eliminar código que se escribió cuando no existía la base de datos, como
+      VALLADOLID de LocalizadorUsuario
+    - Eliminar código cuando creíamos que el Adaptador de LocalizadorUsuario
+      tenía sentido
+    - Gestionar el ciclo de vida del LocalizadorUsuario: qué se tiene que hacer
+      cuando se llame onResume, onPause...
+    - ¿Qué pasa si no tengo google services instalado?

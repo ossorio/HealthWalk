@@ -1,3 +1,31 @@
+[28/12/2014]
+    Caso de uso:
+        - El usuario lanza la aplicación y se le muestra un mapa con los centros
+          de salud más cercanos
+        - El usuario quiere averiguar más información sobre un centro de salud y se
+          le ofrece el nombre del centro y la opción de llamarlo por teléfono
+
+    Funcionalidad:
+        - Averiguar los centros de salud más cercanos
+        - Llamar a un centro de salud escogido
+
+    Interacción de las clases:
+        - MapActivity es lanzado por defecto
+            - Implementa la interfaz ObservadorLocalizaciones
+            - onCreate carga el RepositorioLocalizaciones, LocalizadorUsuario y el mapa.
+            - cuando hay una nueva localización del usuario válida, LocalizadorUsuario
+              llama al método cambioLocalizacion, pasándole como parámetro un objeto
+              Location, a continuación el método pinta en el mapa la nueva localización
+              y actualiza los centros si es necesario.
+            - cuando se llama onStop, onResume... se gestionan convenientemente los 
+              recursos reservados por LocalizadorUsuario y RepositorioLocalizaciones
+        - La aplicación dispone de un menú contextual para lanzar las actividades de
+          la Ayuda y Acerca de.
+        - Si el usuario rota la pantalla todo tiene que seguir igual
+        - Si el usuario sale de la aplicación con las actividades de Ayuda y Acerca de,
+          los recursos de RepositorioLocalizaciones y LocalizadorUsuario tienen que
+          liberarse.
+
 [25/11/2014] 
     Caso de uso:
         - El usuario quiere averiguar el centro de salud más cercano para

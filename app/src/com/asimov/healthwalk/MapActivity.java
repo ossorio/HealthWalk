@@ -13,8 +13,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapActivity extends Activity {
-	// TODO: Moverlo a un recurso
-	
 	 // Mapa que sirve de base para indicar localizaciones
 	protected GoogleMap mMap;
 	protected  TextView texto;
@@ -25,7 +23,6 @@ public class MapActivity extends Activity {
 	
 	private LocalizadorUsuario gps;
 
-	
 	// Marcador que indica la ultima ubicacion actualizada
 	protected Marker marcadorUbicacionActual;
 	
@@ -67,6 +64,21 @@ public class MapActivity extends Activity {
 		centrosSalud[1].setLongitude(-4.7311999);
 		gps.agregaMarcador(centrosSalud[0], "Centro de Salud nº 3", Utils.COLOR_MARCADOR_CENTRO_SALUD );
 		gps.agregaMarcador(centrosSalud[1], "Centro de Salud nº 166", Utils.COLOR_MARCADOR_CENTRO_SALUD);
+	}
+	
+	/*
+	 * Lo llama el LocalizadorUsuario cuando existe una nueva localizacion disponible,
+	 * dibuja la nueva localizacion y decide si ampliar o reducir los centros mostrados
+	 */
+	public void cambioLocalizacion(Location nueva_localizacion){
+		
+	}
+	
+	/*
+	 * Dibuja un marcador con las coordenadas de localizacion en el mapa
+	 */
+	public void dibujarLocalizacion(Location localizacion){
+		
 	}
 	
 	@Override
