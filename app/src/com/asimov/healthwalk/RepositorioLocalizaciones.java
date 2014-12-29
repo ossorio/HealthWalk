@@ -17,13 +17,10 @@ import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.asimov.healthwalk.Utils;
-
 /**
  * Se encarga de proporcionar los datos necesarios para mostrar en el mapa, si la base
  * de datos no existe la copia desde los assets en el directorio
  * /data/data/con.asimov.healthwalk/databases
- * 
  * @author Alejandro Lopez Espinosa
  */
 public class RepositorioLocalizaciones {
@@ -75,8 +72,7 @@ public class RepositorioLocalizaciones {
 	 * @param radio Radio de la circunferencia
 	 * @return cursor con los centros de salud pedidos
 	 */
-	public Cursor getCentrosSalud(Location desde, double radio){
-		// TODO: Hay que testearlo con el mapa
+	public ArrayList<CentroSalud> getCentrosSalud(Location desde, double radio){
 		if(bd != null){
 			// Averiguamos los ids de los centros de salud que están cerca de desde
 			String[] columnas = {"_id", "Latitud", "Longitud"};
@@ -97,10 +93,21 @@ public class RepositorioLocalizaciones {
 			}
 
 			// Devolvemos los resultados de la consulta
-			String[] columnas_consulta = {"_id", "Nombre", "Telefono", "Latitud", "Longitud"};
-			return bd.query(true, TABLE, columnas_consulta, 
-							"_id in (" + placeholders(ids.size()) + ")", ids.toArray(new String[ids.size()]), 
-							"", "", "", "", null);
+			String[] columnas_consulta = {"_id", "Nombre", "Direccion", "Ciudad", "Provincia", "Telefono", "Latitud", "Longitud"};
+			ArrayList<CentroSalud> centrosSalud = new ArrayList<CentroSalud>(ids.size());
+			Cursor cursor_cs = bd.query(true, TABLE, columnas_consulta, 
+										"_id in (" + placeholders(ids.size()) + ")", ids.toArray(new String[ids.size()]), 
+										"", "", "", "", null);
+			cursor_cs.moveToFirst();
+			while(cursor_cs.isAfterLast() == false){
+				CentroSalud cs = new CentroSalud(cursor_cs.getString(1), cursor_cs.getString(2), cursor_cs.getString(3), 
+											  	 cursor_cs.getString(4), cursor_cs.getString(5),
+											  	 cursor_cs.getDouble(6), cursor_cs.getDouble(7));
+				centrosSalud.add(cs);
+				cursor_cs.moveToNext();
+			}
+			
+			return centrosSalud;
 		}
 		
 		return null;

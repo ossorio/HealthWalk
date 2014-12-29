@@ -1,11 +1,14 @@
 package com.asimov.healthwalk;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -17,7 +20,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
  * Actividad que muestra el mapa con los centros de salud mas cercanos, es la
- * responsable de dibujar la IU y de implementar los controles de la misma
+ * responsable de dibujar la IU principal y de implementar su comportamiento
  * @author Oscar Gonzalez Ossorio
  * @author Alejandro Lopez Espinosa
  */
@@ -26,8 +29,8 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	protected GoogleMap mMap;
 	protected  TextView texto;
 
-	// TODO: Rellenar con datos de la BD, deberia ser un array de Markers
-	protected Location [] centrosSalud;
+	// Centros de salud mostrados actualmente en el mapa
+	protected ArrayList<CentroSalud> centrosSalud;
 	
 	// Almacena la ubicacion actual y su marcador
 	protected Location localizacion_actual;
@@ -36,22 +39,26 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	// Localizador que llama a esta clase cada vez que hay una nueva actualizacion
 	// disponible
 	private LocalizadorUsuario gps;
+	private RepositorioLocalizaciones repositorio;
 
 	// Bandera que indica si se estan solicitando actualizaciones de ubicacion
 	// sin los servicios de Google activados (LocationManager)
+	// TODO: Sigue siendo valido?
 	protected boolean solicitandoActualizaciones;
 	
-    // Variables para calcular la distancia al centro de salud mas proximo
-    private float minDistancia;
-    private float distancia;
-    // TODO: en Utils?
-	private String UNIDAD_DISTANCIA;
-    
+	/*
+	 * Inicializa las principales clases de la aplicacion
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		Log.d(Utils.ASIMOV, "MapActivity onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map);
 		
+		centrosSalud = new ArrayList<CentroSalud>();
+		
+		// TODO: si no tiene una version del services > 6171000 peta
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.getUiSettings().setZoomControlsEnabled(true);
 		mMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -59,12 +66,70 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		texto = (TextView) findViewById(R.id.textoMapa);
 		texto.setGravity(Gravity.CENTER);
 		
-		centrosSalud = new Location [42];
-		
-		// Se crea un localizador de ubicaciones
 		gps = new LocalizadorUsuario(this);
+		repositorio = new RepositorioLocalizaciones(this, Utils.BASE_DATOS);
 		
-		// TODO: inicializar el repositorio
+		// Testing
+		Location loc = new Location("");
+		loc.setLatitude(41.6344462);
+		loc.setLongitude(-4.7478554);
+		cambioLocalizacion(loc);
+	}
+	
+	@Override
+	protected void onStart() {
+		Log.d(Utils.ASIMOV, "MapActivity onStart");
+		super.onStart();
+
+		// TODO: lo mismo que en onPause
+		if(gps.serviciosActivados){
+			gps.solicitarActualizaciones();
+		}else{
+			gps.solicitarActualizacionesSinServicios();
+		}
+	}
+	
+	@Override
+	protected void onResume() {
+		Log.d(Utils.ASIMOV, "MapActivity onResume");
+		super.onResume();
+		
+		// TODO: lo mismo que en onPause
+		if(gps.serviciosActivados){
+			gps.solicitarActualizaciones();
+		}else{
+			gps.solicitarActualizacionesSinServicios();
+		}
+		
+		actualizaMarcadorUsuario(localizacion_actual);
+		muestraDistanciaCentroSalud(localizacion_actual);
+	}
+	
+	@Override
+	protected void onPause() {
+		Log.d(Utils.ASIMOV, "MapActivity onPause");
+		super.onPause();
+		
+		// TODO: gestion del repositorio y abstraerlo para varias actividades
+		// TODO: No habria que diferenciar entre si el dispositivo tiene los serviciosActivados
+		// 		 en MapActivity, lo tiene que hacer LocalizadorUsuario
+		if(gps.serviciosActivados){
+			gps.pararActualizaciones();
+		}else{
+			gps.pararActualizacionesSinServicios();
+		}
+	}
+	
+	@Override
+	protected void onStop() {
+		Log.d(Utils.ASIMOV, "MapActivity onStop");
+		super.onStop();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		Log.d(Utils.ASIMOV, "MapActivity onDestroy");
+		super.onDestroy();
 	}
 	
 	/**
@@ -74,10 +139,44 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	 */
 	@Override
 	public void cambioLocalizacion(Location nueva_localizacion){
-		// TODO: actualizar la localizacion de los centros de salud cuando salgamos del radio
+		// TODO: falta exception handling
+		Log.d(Utils.ASIMOV, "Actualizacion para localizacion recibida.");
+    	actualizaMarcadorUsuario(nueva_localizacion);
+
+    	// Solo actualizamos los centros de salud cuando el usuario se ha movido del mas cercano
+    	// o no hay centros de salud guardados
+    	if(centrosSalud.size() == 0 ||
+ 		   nueva_localizacion.distanceTo(centrosSalud.get(0).getLocalizacion()) > Utils.RADIO_BUSQUEDA / 3){
+    		actualizaCentrosSalud(nueva_localizacion);
+    	}
+
+    	muestraDistanciaCentroSalud(nueva_localizacion);
 		localizacion_actual = nueva_localizacion;
-    	actualizaMarcadorUsuario();
-    	muestraDistanciaCentroSalud();
+	}
+
+	/**
+	 * Redibuja los centros de salud mas cercanos a la nueva_localizacion
+	 * @param nueva_localizacion Localizacion desde la que hay que dibujar los centros de salud
+	 */
+	private void actualizaCentrosSalud(Location nueva_localizacion) {
+		Log.d(Utils.ASIMOV, "Actualizando centros de salud");
+		ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.RADIO_BUSQUEDA);
+		if(nuevosCentrosSalud != null){
+			for(CentroSalud cs : centrosSalud){
+				eliminaMarcador(cs.getMarcador());
+			}
+			centrosSalud.clear();
+			centrosSalud = nuevosCentrosSalud;
+			for(CentroSalud cs : centrosSalud){
+				Marker marcador = agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.COLOR_MARCADOR_CENTRO_SALUD);
+				cs.setMarcador(marcador);
+			}
+			Log.d(Utils.ASIMOV, "Centros de salud actualizados");
+		}else{
+			// TODO: llevarlo a un recurso
+			Toast toast = Toast.makeText(this, "No se pudieron actualizar los centros de salud", Toast.LENGTH_LONG);
+			Log.e(Utils.ASIMOV, "No se pudieron actualizar los centros de salud");
+		}
 	}
 	
 	/**
@@ -85,20 +184,21 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	 * "zoom" sobre la posicion
 	 * @param nueva_localizacion Nueva localizacion del marcador de usuario
 	 */
-	protected void actualizaMarcadorUsuario(){
+	protected void actualizaMarcadorUsuario(Location nueva_localizacion){
 		if(marcadorUbicacionActual != null){
 			eliminaMarcador(marcadorUbicacionActual);
 			marcadorUbicacionActual = null;
 		}
 
-		if(localizacion_actual != null){
+		if(nueva_localizacion != null){
 			// TODO: la etiqueta deberia ser el nombre del centro de salud
 			String etiqueta = getString(R.string.ubicacionActual);
-			LatLng posicion = new LatLng(localizacion_actual.getLatitude(), localizacion_actual.getLongitude());
-			marcadorUbicacionActual = agregaMarcador(localizacion_actual, etiqueta, Utils.COLOR_MARCADOR_UBICACION_ACTUAL);
+			LatLng posicion = new LatLng(nueva_localizacion.getLatitude(), nueva_localizacion.getLongitude());
+			marcadorUbicacionActual = agregaMarcador(nueva_localizacion, etiqueta, Utils.COLOR_MARCADOR_UBICACION_ACTUAL);
 
 			// Situa la panoramica del mapa sobre una ubicacion
 			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
+			Log.d(Utils.ASIMOV, "Actualizacion para localizacion dibujado.");
 		}else{
 			// TODO: hacer un zoom sobre cyl?
 		}
@@ -133,96 +233,25 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	
 	/**
 	 * Muestra la distancia al centro de salud más cercano
+	 * @param nueva_localizacion Nueva localizacion del marcador de usuario
 	 */
-	protected void muestraDistanciaCentroSalud(){
-		if(localizacion_actual != null){
-			// TODO: calculaDistanciaCentroSalud no debería recibir ningun argumento
-			float distancia = calculaDistanciaCentroSalud(localizacion_actual);
-			texto.setText(getString(R.string.distanciaACentroSalud) + " " + distancia + " " + UNIDAD_DISTANCIA);
+	protected void muestraDistanciaCentroSalud(Location nueva_localizacion){
+		if(nueva_localizacion != null){
+			String unidad_distancia;
+			CentroSalud centroSalud = centrosSalud.get(0);
+			double distancia = nueva_localizacion.distanceTo(centroSalud.getLocation());
+			// TODO: Podemos traducirlo a otros sistemas numericos facilmente?
+			if(distancia >= 1000){
+				distancia -= distancia % 10;
+				distancia /= 1000;
+				unidad_distancia = "Km";
+			}else{
+				unidad_distancia = "m";
+			}
+			texto.setText(getString(R.string.distanciaACentroSalud) + " " + distancia + " " + unidad_distancia);
+			Log.d(Utils.ASIMOV, "Distancia a centro de salud actualizada.");
 		}else{
 			texto.setText(getResources().getString(R.string.distanciaACentroSalud) + " " + getResources().getString(R.string.ubicando));
-		}
-	}
-	
-	/**
-	 * Calcula la distancia al centro de salud mas cercano
-	 */
-	private float calculaDistanciaCentroSalud(Location locActual){
-		// TODO: esta centrosSalud ordenado?
-		minDistancia = Math.round(locActual.distanceTo(centrosSalud[0]));
-
-		int i = 1;
-
-		while(centrosSalud[i] != null && i < centrosSalud.length){
-			distancia = Math.round(locActual.distanceTo(centrosSalud[i]));
-			if(distancia < minDistancia)
-				minDistancia =	distancia;
-				i++;
-		}
-
-		if(minDistancia >= 1000){
-			minDistancia -= minDistancia % 10;
-			minDistancia /= 1000;
-			UNIDAD_DISTANCIA = "Km";
-		}else{
-			UNIDAD_DISTANCIA = "metros";
-		}
-
-		return minDistancia;
-	}
-	
-	@Override
-	protected void onPause() {
-		Log.d(Utils.ASIMOV, "OnPause()");
-		super.onPause();
-		
-		// TODO: No habria que diferenciar entre si el dispositivo tiene los serviciosActivados
-		// 		 en MapActivity, lo tiene que hacer LocalizadorUsuario
-		if(gps.serviciosActivados){
-			gps.pararActualizaciones();
-		}else{
-			gps.pararActualizacionesSinServicios();
-		}
-	}
-	
-	@Override
-	protected void onStop() {
-		Log.d(Utils.ASIMOV, "OnStop()");
-		super.onStop();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		Log.d(Utils.ASIMOV, "OnDestroy()");
-		super.onDestroy();
-	}
-	
-	@Override
-	protected void onResume() {
-		Log.d(Utils.ASIMOV, "OnResume()");
-		super.onResume();
-		
-		// TODO: lo mismo que en onPause
-		if(gps.serviciosActivados){
-			gps.solicitarActualizaciones();
-		}else{
-			gps.solicitarActualizacionesSinServicios();
-		}
-		
-		actualizaMarcadorUsuario();
-		muestraDistanciaCentroSalud();
-	}
-	
-	@Override
-	protected void onStart() {
-		Log.d(Utils.ASIMOV, "OnStart()");
-		super.onStart();
-
-		// TODO: lo mismo que en onPause
-		if(gps.serviciosActivados){
-			gps.solicitarActualizaciones();
-		}else{
-			gps.solicitarActualizacionesSinServicios();
 		}
 	}
 }
