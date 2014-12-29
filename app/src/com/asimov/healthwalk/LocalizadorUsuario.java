@@ -37,21 +37,14 @@ public class LocalizadorUsuario extends Service
     private boolean red_activada = false;
     private MapActivity map;
     
-	private String UNIDAD_DISTANCIA;
-	
 	// Indica si los servicios de Google Play estan activados
     protected boolean serviciosActivados;
     
     // Ubicacion inicial por defecto (Valladolid capital).
     protected Location VALLADOLID;
     
-    
     private String PROVIDER;
    
-    // Variables para calcular la distancia al centro de salud mas proximo
-    private float minDistancia;
-    private float distancia;
-    
     // Gestor de ubicaciones
     protected LocationManager loc_manager;
 
@@ -59,7 +52,6 @@ public class LocalizadorUsuario extends Service
     
     // Cliente de la API de Google
     protected GoogleApiClient google_API_client;
-
 
     public LocalizadorUsuario(Context context) {
     	map = (MapActivity) context;
@@ -89,11 +81,19 @@ public class LocalizadorUsuario extends Service
      */
     @Override
     public void onLocationChanged(Location location) {
-    	map.location = location;
-    	if(map.marcadorUbicacionActual != null)
-    		eliminaMarcador(map.marcadorUbicacionActual);
-    	muestraUbicacion(map.location, mContext.getString(R.string.ubicacionActual));
-    	muestraDistanciaCentroSalud(map.location);
+    	// TODO: en vez de llamar directamente a un solo observador hay que llamar a todos
+    	// los observadores registrados y hay que comprobar que la nueva localizacion
+    	// es "buena"
+    	ObservadorLocalizaciones observador = (ObservadorLocalizaciones) mContext;
+    	observador.cambioLocalizacion(location);
+    }
+    
+    /**
+     * Llamada por un observador para ser notificado cuando la localizacion cambia
+     * @param observador Observador que se quiere registrar frente a los cambios de estado
+     */
+    public void registrarObservador(ObservadorLocalizaciones observador){
+    	// TODO: rellenar
     }
  
     @Override
@@ -191,74 +191,6 @@ public class LocalizadorUsuario extends Service
 		// TODO Auto-generated method stub
 	}
 	
-	/*
-	 * Muestra un marcador sobre la ubicacion con una etiqueta
-	 */
-	protected Marker agregaMarcador(Location location, String etiqueta, float color){
-		LatLng posicion = new LatLng(location.getLatitude(), location.getLongitude());
-		map.opcionesMarcador.position(posicion);
-		map.opcionesMarcador.title(etiqueta);
-		map.opcionesMarcador.icon(BitmapDescriptorFactory
-		        .defaultMarker(color));
-		
-		return map.mMap.addMarker(map.opcionesMarcador);
-	}
-	
-	protected void eliminaMarcador(Marker marker){
-		marker.remove();
-	}
-	
-	/*
-	 * Primero muestra un marcador sobre la ubicacion y despues realiza un
-	 * "zoom" sobre la posicion
-	 */
-	protected void muestraUbicacion(Location location, String etiqueta){
-		map.marcadorUbicacionActual = agregaMarcador(location, etiqueta, Utils.COLOR_MARCADOR_UBICACION_ACTUAL);
-		zoom(location);
-	}
-	
-	/*
-	 * Situa la panoramica del mapa sobre una ubicacion
-	 */
-	protected void zoom(Location location){
-		LatLng posicion = new LatLng(location.getLatitude(), location.getLongitude());
-		map.mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
-	}
-	
-	/*
-	 * Calcula la distancia al centro de salud mas cercano
-	 */
-	private float calculaDistanciaCentroSalud(Location locActual){
-		minDistancia = Math.round(locActual.distanceTo(map.centrosSalud[0]));
-
-		int i = 1;
-
-		while(map.centrosSalud[i] != null && i < map.centrosSalud.length){
-			distancia = Math.round(locActual.distanceTo(map.centrosSalud[i]));
-			if(distancia < minDistancia)
-				minDistancia =	distancia;
-				i++;
-		}
-
-		if(minDistancia >= 1000){
-			minDistancia -= minDistancia % 10;
-			minDistancia /= 1000;
-			UNIDAD_DISTANCIA = "Km";
-		}else{
-			UNIDAD_DISTANCIA = "metros";
-		}
-
-		return minDistancia;
-	}
-	
-	/*
-	 * Muestra la distancia al centro de salud más cercano
-	 */
-	protected void muestraDistanciaCentroSalud(Location locActual){
-		float distancia = calculaDistanciaCentroSalud(locActual);
-		map.texto.setText(mContext.getString(R.string.distanciaACentroSalud) + " " + distancia + " " + UNIDAD_DISTANCIA);
-	}
-
 	@Override
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
