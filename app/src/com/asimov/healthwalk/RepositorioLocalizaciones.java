@@ -19,6 +19,13 @@ import android.widget.Toast;
 
 import com.asimov.healthwalk.Utils;
 
+/**
+ * Se encarga de proporcionar los datos necesarios para mostrar en el mapa, si la base
+ * de datos no existe la copia desde los assets en el directorio
+ * /data/data/con.asimov.healthwalk/databases
+ * 
+ * @author Alejandro Lopez Espinosa
+ */
 public class RepositorioLocalizaciones {
 	private Context mContext;
 	private final int TAM_BUFFER = 1024;

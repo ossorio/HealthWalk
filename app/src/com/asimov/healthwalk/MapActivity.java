@@ -12,7 +12,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapActivity extends Activity {
+public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	 // Mapa que sirve de base para indicar localizaciones
 	protected GoogleMap mMap;
 	protected  TextView texto;
@@ -70,6 +70,7 @@ public class MapActivity extends Activity {
 	 * Lo llama el LocalizadorUsuario cuando existe una nueva localizacion disponible,
 	 * dibuja la nueva localizacion y decide si ampliar o reducir los centros mostrados
 	 */
+	@Override
 	public void cambioLocalizacion(Location nueva_localizacion){
 		
 	}
