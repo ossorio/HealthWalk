@@ -8,5 +8,5 @@
     <string name="ubicando">Ubicando&#8230;</string>
     <string name="distanciaACentroSalud">Distancia: </string>
     <string name="ubicacionActual">Usted está aquí</string>
-	
+	<string name="errorCentrosSalud">No se pudieron encontrar centros de salud</string>
 </resources>

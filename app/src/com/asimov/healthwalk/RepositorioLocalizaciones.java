@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import android.content.Context;
@@ -38,7 +40,6 @@ public class RepositorioLocalizaciones {
 	RepositorioLocalizaciones(Context contexto, String base_datos){
 		mContext = contexto;
 		setBaseDatos(base_datos);
-		start();
 	}
 
 	/**
@@ -72,7 +73,7 @@ public class RepositorioLocalizaciones {
 	 * @param radio Radio de la circunferencia
 	 * @return cursor con los centros de salud pedidos
 	 */
-	public ArrayList<CentroSalud> getCentrosSalud(Location desde, double radio){
+	public ArrayList<CentroSalud> getCentrosSalud(final Location desde, double radio){
 		if(bd != null){
 			// Averiguamos los ids de los centros de salud que están cerca de desde
 			String[] columnas = {"_id", "Latitud", "Longitud"};
@@ -106,6 +107,15 @@ public class RepositorioLocalizaciones {
 				centrosSalud.add(cs);
 				cursor_cs.moveToNext();
 			}
+			
+			Collections.sort(centrosSalud, new Comparator<CentroSalud>(){
+				@Override
+				public int compare(CentroSalud cs1, CentroSalud cs2){
+					double dis1 = desde.distanceTo(cs1.getLocalizacion());
+					double dis2 = desde.distanceTo(cs2.getLocalizacion());
+					return (int) Math.round(dis1 - dis2);
+				}
+			});
 			
 			return centrosSalud;
 		}

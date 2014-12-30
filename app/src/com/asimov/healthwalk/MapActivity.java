@@ -71,7 +71,7 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		
 		// Testing
 		Location loc = new Location("");
-		loc.setLatitude(41.6344462);
+		loc.setLatitude(40.6344462);
 		loc.setLongitude(-4.7478554);
 		cambioLocalizacion(loc);
 	}
@@ -93,6 +93,7 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	protected void onResume() {
 		Log.d(Utils.ASIMOV, "MapActivity onResume");
 		super.onResume();
+		repositorio.start();
 		
 		// TODO: lo mismo que en onPause
 		if(gps.serviciosActivados){
@@ -109,8 +110,8 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	protected void onPause() {
 		Log.d(Utils.ASIMOV, "MapActivity onPause");
 		super.onPause();
-		
-		// TODO: gestion del repositorio y abstraerlo para varias actividades
+		repositorio.stop();
+
 		// TODO: No habria que diferenciar entre si el dispositivo tiene los serviciosActivados
 		// 		 en MapActivity, lo tiene que hacer LocalizadorUsuario
 		if(gps.serviciosActivados){
@@ -139,7 +140,6 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	 */
 	@Override
 	public void cambioLocalizacion(Location nueva_localizacion){
-		// TODO: falta exception handling
 		Log.d(Utils.ASIMOV, "Actualizacion para localizacion recibida.");
     	actualizaMarcadorUsuario(nueva_localizacion);
 
@@ -155,31 +155,6 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	}
 
 	/**
-	 * Redibuja los centros de salud mas cercanos a la nueva_localizacion
-	 * @param nueva_localizacion Localizacion desde la que hay que dibujar los centros de salud
-	 */
-	private void actualizaCentrosSalud(Location nueva_localizacion) {
-		Log.d(Utils.ASIMOV, "Actualizando centros de salud");
-		ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.RADIO_BUSQUEDA);
-		if(nuevosCentrosSalud != null){
-			for(CentroSalud cs : centrosSalud){
-				eliminaMarcador(cs.getMarcador());
-			}
-			centrosSalud.clear();
-			centrosSalud = nuevosCentrosSalud;
-			for(CentroSalud cs : centrosSalud){
-				Marker marcador = agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.COLOR_MARCADOR_CENTRO_SALUD);
-				cs.setMarcador(marcador);
-			}
-			Log.d(Utils.ASIMOV, "Centros de salud actualizados");
-		}else{
-			// TODO: llevarlo a un recurso
-			Toast toast = Toast.makeText(this, "No se pudieron actualizar los centros de salud", Toast.LENGTH_LONG);
-			Log.e(Utils.ASIMOV, "No se pudieron actualizar los centros de salud");
-		}
-	}
-	
-	/**
 	 * Primero crea un marcador sobre la nueva ubicacion y despues realiza un
 	 * "zoom" sobre la posicion
 	 * @param nueva_localizacion Nueva localizacion del marcador de usuario
@@ -191,7 +166,6 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		}
 
 		if(nueva_localizacion != null){
-			// TODO: la etiqueta deberia ser el nombre del centro de salud
 			String etiqueta = getString(R.string.ubicacionActual);
 			LatLng posicion = new LatLng(nueva_localizacion.getLatitude(), nueva_localizacion.getLongitude());
 			marcadorUbicacionActual = agregaMarcador(nueva_localizacion, etiqueta, Utils.COLOR_MARCADOR_UBICACION_ACTUAL);
@@ -232,14 +206,40 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	}
 	
 	/**
+	 * Redibuja los centros de salud mas cercanos a la nueva_localizacion
+	 * @param nueva_localizacion Localizacion desde la que hay que dibujar los centros de salud
+	 */
+	private void actualizaCentrosSalud(Location nueva_localizacion) {
+		Log.d(Utils.ASIMOV, "Actualizando centros de salud");
+		ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.RADIO_BUSQUEDA);
+		if(nuevosCentrosSalud != null && nuevosCentrosSalud.size() > 0){
+			for(CentroSalud cs : centrosSalud){
+				eliminaMarcador(cs.getMarcador());
+			}
+			centrosSalud.clear();
+			centrosSalud = nuevosCentrosSalud;
+			for(CentroSalud cs : centrosSalud){
+				Marker marcador = agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.COLOR_MARCADOR_CENTRO_SALUD);
+				cs.setMarcador(marcador);
+			}
+			Log.d(Utils.ASIMOV, "Centros de salud actualizados");
+		}else{
+			Toast toast = Toast.makeText(this, getString(R.string.errorCentrosSalud), Toast.LENGTH_LONG);
+			toast.show();
+			Log.e(Utils.ASIMOV, "No se pudieron actualizar los centros de salud");
+		}
+	}
+	
+	/**
 	 * Muestra la distancia al centro de salud más cercano
 	 * @param nueva_localizacion Nueva localizacion del marcador de usuario
 	 */
 	protected void muestraDistanciaCentroSalud(Location nueva_localizacion){
-		if(nueva_localizacion != null){
+		if(nueva_localizacion != null && centrosSalud.size() > 0){
 			String unidad_distancia;
 			CentroSalud centroSalud = centrosSalud.get(0);
 			double distancia = nueva_localizacion.distanceTo(centroSalud.getLocation());
+			Log.d(Utils.ASIMOV, "Distancia: " + distancia + "Nombre: " + centroSalud.getNombre() + "Provincia: " + centroSalud.getProvincia());
 			// TODO: Podemos traducirlo a otros sistemas numericos facilmente?
 			if(distancia >= 1000){
 				distancia -= distancia % 10;

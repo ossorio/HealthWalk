@@ -41,6 +41,10 @@ public class CentroSalud {
 		return nombre;
 	}
 
+	public String getProvincia() {
+		return provincia;
+	}
+
 	public String getTelefono() {
 		return telefono;
 	}
