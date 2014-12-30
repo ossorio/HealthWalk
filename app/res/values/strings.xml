@@ -9,4 +9,11 @@
     <string name="distanciaACentroSalud">Distance: </string>
     <string name="ubicacionActual">You are here</string>
 	<string name="errorCentrosSalud">The health centers could not be located</string>
+	<string name="clickMarcador">Click to see more</string>
+
+    <string name="centro_salud_activity">Health center info</string>
+    <string name="ciudad">City:</string>
+    <string name="telefono">Telephone:</string>
+    <string name="direccion">Address:</string>
+    <string name="llamar">Call</string>
 </resources>

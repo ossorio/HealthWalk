@@ -2,9 +2,10 @@ package com.asimov.healthwalk;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,7 +26,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  * @author Oscar Gonzalez Ossorio
  * @author Alejandro Lopez Espinosa
  */
-public class MapActivity extends Activity implements ObservadorLocalizaciones{
+public class MapActivity extends FragmentActivity implements ObservadorLocalizaciones, OnInfoWindowClickListener{
 	 // Partes del layout que hay que actualizar con cada nueva localizacion
 	protected GoogleMap mMap;
 	protected  TextView texto;
@@ -62,18 +64,13 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		mMap.getUiSettings().setZoomControlsEnabled(true);
 		mMap.getUiSettings().setMyLocationButtonEnabled(true);
+		mMap.setOnInfoWindowClickListener(this);
 
 		texto = (TextView) findViewById(R.id.textoMapa);
 		texto.setGravity(Gravity.CENTER);
 		
 		gps = new LocalizadorUsuario(this);
 		repositorio = new RepositorioLocalizaciones(this, Utils.BASE_DATOS);
-		
-		// Testing
-		Location loc = new Location("");
-		loc.setLatitude(40.6344462);
-		loc.setLongitude(-4.7478554);
-		cambioLocalizacion(loc);
 	}
 	
 	@Override
@@ -104,6 +101,12 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		
 		actualizaMarcadorUsuario(localizacion_actual);
 		muestraDistanciaCentroSalud(localizacion_actual);
+		
+		// Testing
+		Location loc = new Location("");
+		loc.setLatitude(41.6444462);
+		loc.setLongitude(-4.7478554);
+		cambioLocalizacion(loc);
 	}
 	
 	@Override
@@ -132,6 +135,26 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		Log.d(Utils.ASIMOV, "MapActivity onDestroy");
 		super.onDestroy();
 	}
+
+	/**
+	 * Llamado cuando se pincha en un marcador del mapa
+	 * @param marcador Marcador sobre el que se ha pinchado
+	 */
+	@Override
+	public void onInfoWindowClick(Marker marcador) {
+		String titulo = marcador.getTitle();
+		if(!titulo.equals(getString(R.string.ubicacionActual))){
+			for(CentroSalud cs : centrosSalud){
+				if(titulo.equals(cs.getNombre())){
+					Intent intent = new Intent(this, CentroSaludActivity.class);
+					Bundle bundle = new Bundle();
+					bundle.putSerializable("centro_salud", cs);
+					intent.putExtras(bundle);
+					startActivity(intent);
+				}
+			}
+		}
+	}
 	
 	/**
 	 * Lo llama el LocalizadorUsuario cuando existe una nueva localizacion disponible,
@@ -141,7 +164,6 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 	@Override
 	public void cambioLocalizacion(Location nueva_localizacion){
 		Log.d(Utils.ASIMOV, "Actualizacion para localizacion recibida.");
-    	actualizaMarcadorUsuario(nueva_localizacion);
 
     	// Solo actualizamos los centros de salud cuando el usuario se ha movido del mas cercano
     	// o no hay centros de salud guardados
@@ -150,6 +172,7 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
     		actualizaCentrosSalud(nueva_localizacion);
     	}
 
+    	actualizaMarcadorUsuario(nueva_localizacion);
     	muestraDistanciaCentroSalud(nueva_localizacion);
 		localizacion_actual = nueva_localizacion;
 	}
@@ -191,6 +214,9 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		opcionesMarcador.position(posicion);
 		opcionesMarcador.title(etiqueta);
 		opcionesMarcador.icon(BitmapDescriptorFactory.defaultMarker(color));
+		if(!etiqueta.equals(getString(R.string.ubicacionActual))){
+			opcionesMarcador.snippet(getString(R.string.clickMarcador));
+		}
 		
 		return mMap.addMarker(opcionesMarcador);
 	}
@@ -213,14 +239,14 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		Log.d(Utils.ASIMOV, "Actualizando centros de salud");
 		ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.RADIO_BUSQUEDA);
 		if(nuevosCentrosSalud != null && nuevosCentrosSalud.size() > 0){
-			for(CentroSalud cs : centrosSalud){
-				eliminaMarcador(cs.getMarcador());
-			}
+			// Limpiar todos los marcadores del mapa
+			mMap.clear();
+			marcadorUbicacionActual = null;
 			centrosSalud.clear();
+
 			centrosSalud = nuevosCentrosSalud;
 			for(CentroSalud cs : centrosSalud){
-				Marker marcador = agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.COLOR_MARCADOR_CENTRO_SALUD);
-				cs.setMarcador(marcador);
+				agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.COLOR_MARCADOR_CENTRO_SALUD);
 			}
 			Log.d(Utils.ASIMOV, "Centros de salud actualizados");
 		}else{
@@ -238,8 +264,7 @@ public class MapActivity extends Activity implements ObservadorLocalizaciones{
 		if(nueva_localizacion != null && centrosSalud.size() > 0){
 			String unidad_distancia;
 			CentroSalud centroSalud = centrosSalud.get(0);
-			double distancia = nueva_localizacion.distanceTo(centroSalud.getLocation());
-			Log.d(Utils.ASIMOV, "Distancia: " + distancia + "Nombre: " + centroSalud.getNombre() + "Provincia: " + centroSalud.getProvincia());
+			double distancia = nueva_localizacion.distanceTo(centroSalud.getLocalizacion());
 			// TODO: Podemos traducirlo a otros sistemas numericos facilmente?
 			if(distancia >= 1000){
 				distancia -= distancia % 10;

@@ -1,23 +1,26 @@
 package com.asimov.healthwalk;
 
+import java.io.Serializable;
+
 import android.location.Location;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.Marker;
 
 /**
  * Creada por el Repositorio para guardar la informacion de un centro de salud
+ * Implementa la interfaz Serializable ya que es pasada en Intents
  * @author Alejandro Lopez Espinosa
  */
-public class CentroSalud {
+public class CentroSalud implements Serializable{
 
-	private Location localizacion;
+	private static final long serialVersionUID = 69L;
 	private String nombre;
 	private String direccion;
 	private String ciudad;
 	private String provincia;
 	private String telefono;
-	private Marker marcador;
+	private double latitud;
+	private double longitud;
 
 	public CentroSalud(String nombre, String direccion, String ciudad,
 			String provincia, String telefono, double lat, double lon) {
@@ -27,18 +30,27 @@ public class CentroSalud {
 		this.ciudad = ciudad;
 		this.provincia = provincia;
 		this.telefono = telefono;
-		this.localizacion = new Location("");
-		this.localizacion.setLatitude(lat);
-		this.localizacion.setLongitude(lon);
+		this.latitud = lat;
+		this.longitud = lon;
 	}
 
-
 	public Location getLocalizacion() {
-		return localizacion;
+		Location loc = new Location("");
+		loc.setLatitude(latitud);
+		loc.setLongitude(longitud);
+		return loc;
 	}
 
 	public String getNombre() {
 		return nombre;
+	}
+
+	public String getDireccion() {
+		return direccion;
+	}
+
+	public String getCiudad() {
+		return ciudad;
 	}
 
 	public String getProvincia() {
@@ -48,17 +60,4 @@ public class CentroSalud {
 	public String getTelefono() {
 		return telefono;
 	}
-
-	public Marker getMarcador() {
-		return marcador;
-	}
-
-	public void setMarcador(Marker nuevoMarcador) {
-		marcador = nuevoMarcador;
-	}
-
-	public Location getLocation() {
-		return localizacion;
-	}
-	
 }
