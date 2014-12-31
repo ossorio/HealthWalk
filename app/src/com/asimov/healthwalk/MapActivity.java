@@ -62,6 +62,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		setContentView(R.layout.activity_map);
 		
 		centrosSalud = new ArrayList<CentroSalud>();
+		Utils.setContext(this);
 		
 		// TODO: si no tiene una version del services > 6171000 peta
 		mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
@@ -83,6 +84,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	protected void onResume() {
 		Log.d(Utils.ASIMOV, "MapActivity onResume");
 		super.onResume();
+		mMap.setMapType(Utils.getTipoMapa());
 		repositorio.start();
 		
 		// TODO: lo mismo que en onPause
@@ -172,7 +174,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
     	// Solo actualizamos los centros de salud cuando el usuario se ha movido del mas cercano
     	// o no hay centros de salud guardados
     	if(centrosSalud.size() == 0 ||
- 		   nueva_localizacion.distanceTo(centrosSalud.get(0).getLocalizacion()) > Utils.RADIO_BUSQUEDA / 3){
+ 		   nueva_localizacion.distanceTo(centrosSalud.get(0).getLocalizacion()) > Utils.getRadio() / 3){
     		actualizaCentrosSalud(nueva_localizacion);
     	}
 
@@ -195,7 +197,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		if(nueva_localizacion != null){
 			String etiqueta = getString(R.string.ubicacionActual);
 			LatLng posicion = new LatLng(nueva_localizacion.getLatitude(), nueva_localizacion.getLongitude());
-			marcadorUbicacionActual = agregaMarcador(nueva_localizacion, etiqueta, Utils.COLOR_MARCADOR_UBICACION_ACTUAL);
+			marcadorUbicacionActual = agregaMarcador(nueva_localizacion, etiqueta, Utils.getColorUsuario());
 
 			// Situa la panoramica del mapa sobre una ubicacion
 			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
@@ -241,7 +243,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	 */
 	private void actualizaCentrosSalud(Location nueva_localizacion) {
 		Log.d(Utils.ASIMOV, "Actualizando centros de salud");
-		ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.RADIO_BUSQUEDA);
+		ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.getRadio());
 		if(nuevosCentrosSalud != null && nuevosCentrosSalud.size() > 0){
 			// Limpiar todos los marcadores del mapa
 			mMap.clear();
@@ -250,7 +252,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 
 			centrosSalud = nuevosCentrosSalud;
 			for(CentroSalud cs : centrosSalud){
-				agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.COLOR_MARCADOR_CENTRO_SALUD);
+				agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.getColorCentros());
 			}
 			Log.d(Utils.ASIMOV, "Centros de salud actualizados");
 		}else{

@@ -43,11 +43,13 @@
         </activity>
         <activity
             android:name=".CentroSaludActivity"
-            android:label="@string/centro_salud_activity" >
+            android:label="@string/centro_salud_activity"
+            android:parentActivityName=".MapActivity">
         </activity>
         <activity
             android:name=".PreferenciasActivity"
-            android:label="@string/preferencias" >
+            android:label="@string/preferencias"
+            android:parentActivityName=".MapActivity">
         </activity>
     </application>
 

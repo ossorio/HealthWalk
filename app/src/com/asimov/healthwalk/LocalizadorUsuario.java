@@ -67,7 +67,7 @@ public class LocalizadorUsuario extends Service
 		// TODO: los argumentos deberian poder modificarse en preferences
 		loc_request = LocationRequest.create();
 		loc_request.setFastestInterval(400);
-		loc_request.setInterval(5000).setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		loc_request.setInterval(5000).setPriority(Utils.getPrioridad());
 		loc_request.setSmallestDisplacement(5);
     }
 
@@ -159,7 +159,7 @@ public class LocalizadorUsuario extends Service
 		if(loc_manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
 			PROVIDER = LocationManager.NETWORK_PROVIDER;
 		if(!map.solicitandoActualizaciones){
-			loc_manager.requestLocationUpdates(PROVIDER, Utils.TIEMPO_MINIMO, Utils.DISTANCIA_MINIMA, this);
+			loc_manager.requestLocationUpdates(PROVIDER, Utils.getTiempoMinimo(), Utils.getDistanciaMinima(), this);
 			map.solicitandoActualizaciones = true;
 		}
 	}
