@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import android.location.Location;
 
-import com.google.android.gms.maps.model.Marker;
-
 /**
  * Creada por el Repositorio para guardar la informacion de un centro de salud
  * Implementa la interfaz Serializable ya que es pasada en Intents

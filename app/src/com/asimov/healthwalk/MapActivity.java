@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +43,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 
 	// Localizador que llama a esta clase cada vez que hay una nueva actualizacion
 	// disponible
-	private LocalizadorUsuario gps;
+	private LocalizadorUsuario localizador;
 	private RepositorioLocalizaciones repositorio;
 
 	// Bandera que indica si se estan solicitando actualizaciones de ubicacion
@@ -48,7 +51,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	// TODO: Sigue siendo valido?
 	protected boolean solicitandoActualizaciones;
 	
-	/*
+	/**
 	 * Inicializa las principales clases de la aplicacion
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
@@ -69,23 +72,13 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		texto = (TextView) findViewById(R.id.textoMapa);
 		texto.setGravity(Gravity.CENTER);
 		
-		gps = new LocalizadorUsuario(this);
+		localizador = new LocalizadorUsuario(this);
 		repositorio = new RepositorioLocalizaciones(this, Utils.BASE_DATOS);
 	}
 	
-	@Override
-	protected void onStart() {
-		Log.d(Utils.ASIMOV, "MapActivity onStart");
-		super.onStart();
-
-		// TODO: lo mismo que en onPause
-		if(gps.serviciosActivados){
-			gps.solicitarActualizaciones();
-		}else{
-			gps.solicitarActualizacionesSinServicios();
-		}
-	}
-	
+	/**
+	 * Arranca los recursos compartidos como el repositorio y el localizador de usuario
+	 */
 	@Override
 	protected void onResume() {
 		Log.d(Utils.ASIMOV, "MapActivity onResume");
@@ -93,10 +86,10 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		repositorio.start();
 		
 		// TODO: lo mismo que en onPause
-		if(gps.serviciosActivados){
-			gps.solicitarActualizaciones();
+		if(localizador.serviciosActivados){
+			localizador.solicitarActualizaciones();
 		}else{
-			gps.solicitarActualizacionesSinServicios();
+			localizador.solicitarActualizacionesSinServicios();
 		}
 		
 		actualizaMarcadorUsuario(localizacion_actual);
@@ -109,6 +102,9 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		cambioLocalizacion(loc);
 	}
 	
+	/**
+	 * Para los recursos compartidos como el repositorio o el localizador de usuario
+	 */
 	@Override
 	protected void onPause() {
 		Log.d(Utils.ASIMOV, "MapActivity onPause");
@@ -117,25 +113,13 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 
 		// TODO: No habria que diferenciar entre si el dispositivo tiene los serviciosActivados
 		// 		 en MapActivity, lo tiene que hacer LocalizadorUsuario
-		if(gps.serviciosActivados){
-			gps.pararActualizaciones();
+		if(localizador.serviciosActivados){
+			localizador.pararActualizaciones();
 		}else{
-			gps.pararActualizacionesSinServicios();
+			localizador.pararActualizacionesSinServicios();
 		}
 	}
 	
-	@Override
-	protected void onStop() {
-		Log.d(Utils.ASIMOV, "MapActivity onStop");
-		super.onStop();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		Log.d(Utils.ASIMOV, "MapActivity onDestroy");
-		super.onDestroy();
-	}
-
 	/**
 	 * Llamado cuando se pincha en un marcador del mapa
 	 * @param marcador Marcador sobre el que se ha pinchado
@@ -153,6 +137,26 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 					startActivity(intent);
 				}
 			}
+		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.map_menu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item){
+		switch(item.getItemId()){
+            case R.id.preferencias_menu:
+            	Intent intent = new Intent(this, PreferenciasActivity.class);
+            	startActivity(intent);
+            	return true;
+
+			default:
+				return super.onOptionsItemSelected(item);
 		}
 	}
 	

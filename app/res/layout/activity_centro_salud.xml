@@ -47,7 +47,7 @@
         android:layout_alignLeft="@+id/direccion"
         android:layout_alignParentTop="true"
         android:layout_marginTop="14dp"
-        android:text="Nombre"
+        android:text="@string/nombre"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>
