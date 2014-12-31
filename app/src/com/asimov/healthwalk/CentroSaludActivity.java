@@ -12,6 +12,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+/**
+ * Actividad para mostrar los centros de salud
+ * @author Alejandro Lopez Espinosa
+ */
 public class CentroSaludActivity extends Activity {
 
 	@Override
