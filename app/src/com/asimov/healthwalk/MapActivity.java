@@ -96,12 +96,6 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		
 		actualizaMarcadorUsuario(localizacion_actual);
 		muestraDistanciaCentroSalud(localizacion_actual);
-		
-		// Testing
-		Location loc = new Location("");
-		loc.setLatitude(41.6444462);
-		loc.setLongitude(-4.7478554);
-		cambioLocalizacion(null);
 	}
 	
 	/**
