@@ -101,7 +101,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		Location loc = new Location("");
 		loc.setLatitude(41.6444462);
 		loc.setLongitude(-4.7478554);
-		cambioLocalizacion(loc);
+		cambioLocalizacion(null);
 	}
 	
 	/**
@@ -203,7 +203,8 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
 			Log.d(Utils.ASIMOV, "Actualizacion para localizacion dibujado.");
 		}else{
-			// TODO: hacer un zoom sobre cyl?
+			LatLng cyl = new LatLng(40.346544, -3.563344);
+			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cyl, Utils.ZOOM_ES));
 		}
 	}
 
@@ -243,22 +244,24 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	 */
 	private void actualizaCentrosSalud(Location nueva_localizacion) {
 		Log.d(Utils.ASIMOV, "Actualizando centros de salud");
-		ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.getRadio());
-		if(nuevosCentrosSalud != null && nuevosCentrosSalud.size() > 0){
-			// Limpiar todos los marcadores del mapa
-			mMap.clear();
-			marcadorUbicacionActual = null;
-			centrosSalud.clear();
+		if(nueva_localizacion != null){
+			ArrayList<CentroSalud> nuevosCentrosSalud = repositorio.getCentrosSalud(nueva_localizacion, Utils.getRadio());
+			if(nuevosCentrosSalud != null && nuevosCentrosSalud.size() > 0){
+				// Limpiar todos los marcadores del mapa
+				mMap.clear();
+				marcadorUbicacionActual = null;
+				centrosSalud.clear();
 
-			centrosSalud = nuevosCentrosSalud;
-			for(CentroSalud cs : centrosSalud){
-				agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.getColorCentros());
+				centrosSalud = nuevosCentrosSalud;
+				for(CentroSalud cs : centrosSalud){
+					agregaMarcador(cs.getLocalizacion(), cs.getNombre(), Utils.getColorCentros());
+				}
+				Log.d(Utils.ASIMOV, "Centros de salud actualizados");
+			}else{
+				Toast toast = Toast.makeText(this, getString(R.string.errorCentrosSalud), Toast.LENGTH_LONG);
+				toast.show();
+				Log.e(Utils.ASIMOV, "No se pudieron actualizar los centros de salud");
 			}
-			Log.d(Utils.ASIMOV, "Centros de salud actualizados");
-		}else{
-			Toast toast = Toast.makeText(this, getString(R.string.errorCentrosSalud), Toast.LENGTH_LONG);
-			toast.show();
-			Log.e(Utils.ASIMOV, "No se pudieron actualizar los centros de salud");
 		}
 	}
 	
@@ -271,7 +274,6 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 			String unidad_distancia;
 			CentroSalud centroSalud = centrosSalud.get(0);
 			double distancia = nueva_localizacion.distanceTo(centroSalud.getLocalizacion());
-			// TODO: Podemos traducirlo a otros sistemas numericos facilmente?
 			if(distancia >= 1000){
 				distancia -= distancia % 10;
 				distancia /= 1000;

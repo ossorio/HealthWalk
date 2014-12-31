@@ -19,6 +19,7 @@ public class Utils {
 	// Constantes, no se modifican en las preferencias
 	public final static String ASIMOV = "ASIMOV";
 	public final static float ZOOM_LEVEL = 15.0f;
+	public final static float ZOOM_ES = 5.5f;
     public final static String BASE_DATOS = "localizaciones";
     
     // Para la seccion de Actualizaciones de preferencias
