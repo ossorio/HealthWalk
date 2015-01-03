@@ -18,9 +18,11 @@ public class Utils {
 
 	// Constantes, no se modifican en las preferencias
 	public final static String ASIMOV = "ASIMOV";
-	public final static float ZOOM_LEVEL = 15.0f;
+	public final static float ZOOM_LEVEL = 17.0f;
 	public final static float ZOOM_ES = 5.5f;
     public final static String BASE_DATOS = "localizaciones";
+    public final static int CODIGO_ERROR_SIN_SERVICIOS_GOOGLE = 9000;
+    public static final int MARCO_TIEMPO = 1000 * 60;
     
     // Para la seccion de Actualizaciones de preferencias
     // TODO: es necesario reiniciar para que se apliquen los cambios?
@@ -30,9 +32,11 @@ public class Utils {
     
     // Valores por defecto para la seccion de Mapa de preferencias
 	private final static String COLOR_MARCADOR_UBICACION_ACTUAL = "HUE_GREEN";
+	private final static String COLOR_MARCADOR_CENTRO_MAS_CERCANO = "HUE_AZURE";
 	private final static String COLOR_MARCADOR_CENTRO_SALUD = "HUE_RED";
     private final static String RADIO_BUSQUEDA = "3000";
     private final static String TIPO_MAPA = "MAP_TYPE_NORMAL";
+    private final static String MODO_DESPLAZAMIENTO = "ANDANDO";
     
     public static void setContext(Context context){
     	mContext = context;
@@ -94,6 +98,11 @@ public class Utils {
     	return getColor(sharedPref.getString("color_centros_salud", COLOR_MARCADOR_CENTRO_SALUD));
     }
     
+    public static float getColorCentroMasCercano(){
+    	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+    	return getColor(sharedPref.getString("color_centro_mas_cercano", COLOR_MARCADOR_CENTRO_MAS_CERCANO));
+    }
+    
     public static double getRadio(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	return Double.parseDouble(sharedPref.getString("radio", RADIO_BUSQUEDA));
@@ -115,5 +124,19 @@ public class Utils {
     			return GoogleMap.MAP_TYPE_TERRAIN;
     	}
     	return GoogleMap.MAP_TYPE_NORMAL;
+    }
+    
+    public static char getModoDesplazamiento(){
+    	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
+    	String modo = sharedPref.getString("modo_desplazamiento", MODO_DESPLAZAMIENTO);
+    	switch(modo) {
+			case "ANDANDO":
+				return 'w';
+			case "COCHE":
+				return 'd';
+			case "TRANSPORTE_PUBLICO":
+				return 'r';
+		}
+		return 'w';
     }
 }

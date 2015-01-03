@@ -1,10 +1,14 @@
 package com.asimov.healthwalk;
 
+import java.util.ArrayList;
+
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,13 +23,22 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+/**
+ * Contiene la funcionalidad de localizacion del usuario en el mapa
+ * @author Oscar Gonzalez Ossorio
+ * @author Alejandro Lopez Espinosa
+ */
+
 public class LocalizadorUsuario extends Service 
 								implements com.google.android.gms.location.LocationListener, 
 										   ConnectionCallbacks, 
 										   OnConnectionFailedListener, 
-										   com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks, LocationListener
+										   com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks
 {
-    private final Context mContext;
+  
+
+
+	private final Context mContext;
 
     // Atributos para determinar el proveedor de localizacion
     private boolean loc_activada = false;
@@ -36,11 +49,9 @@ public class LocalizadorUsuario extends Service
 	// Indica si los servicios de Google Play estan activados
     protected boolean serviciosActivados;
     
-    // Ubicacion inicial por defecto (Valladolid capital).
-    protected Location VALLADOLID;
+    // Lista de observadores
+    private ArrayList<ObservadorLocalizaciones> observadores;
     
-    private String PROVIDER;
-   
     // Gestor de ubicaciones
     protected LocationManager loc_manager;
 
@@ -52,44 +63,118 @@ public class LocalizadorUsuario extends Service
     public LocalizadorUsuario(Context context) {
     	map = (MapActivity) context;
     	serviciosActivados = servicesConnected();
+    	observadores = new ArrayList<ObservadorLocalizaciones>();
     	mContext = context;
     	loc_manager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-    	VALLADOLID = new Location("");
-    	VALLADOLID.setLatitude(41.652251);
-    	VALLADOLID.setLongitude(-4.7245321);
-
 		google_API_client = new GoogleApiClient.Builder(mContext)
                                         .addApi(LocationServices.API)
                                         .addConnectionCallbacks(this)
                                         .addOnConnectionFailedListener(this)
                                         .build();
 		
-		// TODO: los argumentos deberian poder modificarse en preferences
 		loc_request = LocationRequest.create();
-		loc_request.setFastestInterval(400);
-		loc_request.setInterval(5000).setPriority(Utils.getPrioridad());
-		loc_request.setSmallestDisplacement(5);
+		loc_request.setFastestInterval(Utils.getTiempoMinimo());
+		loc_request.setInterval(Utils.getTiempoMinimo() * 3).setPriority(Utils.getPrioridad());
+		loc_request.setSmallestDisplacement(Utils.getDistanciaMinima());
     }
 
     
-    /*
-     * Funcion usada cuando el dispositivo cambia de ubicacion
+    /**
+     * Se ejecuta cuando existe una ubicacion mas actualizada disponible
+     * @param location La ultima localizacion actualizada del usuario.
      */
     @Override
     public void onLocationChanged(Location location) {
-    	// TODO: en vez de llamar directamente a un solo observador hay que llamar a todos
-    	// los observadores registrados y hay que comprobar que la nueva localizacion
-    	// es "buena"
-    	ObservadorLocalizaciones observador = (ObservadorLocalizaciones) mContext;
-    	observador.cambioLocalizacion(location);
+    	if(esMejorLocalizacion(location, map.localizacion_actual)){
+    		for(ObservadorLocalizaciones observador : observadores){
+    			observador = (ObservadorLocalizaciones) mContext;
+    			observador.cambioLocalizacion(location);
+    		}
+    	}
+    }
+    
+
+    /**
+     * Determina si la nueva localizacion obtenida es mejor que la actual
+     * 
+     * @param nueva_localizacion La nueva localizacion obtenida del cliente de localizaciones
+     * @param localizacion_actual La localizacion actual
+     *            
+     * @return "true" si la nueva localizacion es mejor que la actual y "false" en caso contrario
+     */
+    public static boolean esMejorLocalizacion(Location nueva_localizacion, Location localizacion_actual) {
+        if (localizacion_actual == null) {
+            // Si la localizacion actual es nula, la nueva es mejor
+            return true;
+        }
+
+        // Comprobacion de las marcas de tiempo de las dos localizaciones
+        long tiempoDelta = nueva_localizacion.getTime() - localizacion_actual.getTime();
+        boolean esMuchoMasReciente = tiempoDelta > Utils.MARCO_TIEMPO;
+        boolean esMuchoMasAntigua = tiempoDelta < - Utils.MARCO_TIEMPO;
+        boolean esMasReciente = tiempoDelta > 0;
+
+        // Si ha pasado mas de un minuto desde la obtencion de la localizacion actual 
+        // la nueva es mejor porque el usuario se puede haber desplazado
+        if (esMuchoMasReciente) {
+            return true;
+            // Si la nueva localizacion tiene una antigüedad de mas de un minuto
+            // es peor que la actual
+        } else if (esMuchoMasAntigua) {
+            return false;
+        }
+
+        // Comprobacion de la precision de las localizaciones
+        int precisionDelta = (int) (nueva_localizacion.getAccuracy() - localizacion_actual.getAccuracy());
+        boolean esMenosPrecisa = precisionDelta > 0;
+        boolean esMasPrecisa = precisionDelta < 0;
+        boolean esMuchoMenosPrecisa = precisionDelta > 200;
+
+        // Comprobacion de que la localizacion nueva y la antigua son del mismo 
+        // proveedor de localizaciones
+        boolean sonDelMismoProveedor = esElMismoProveedor(nueva_localizacion.getProvider(), localizacion_actual.getProvider());
+
+        // Se determina la aceptacion de la nueva localizacion usando una combinacion de
+        // las marcas de tiempo y las precisiones
+        if (esMasPrecisa) {
+            return true;
+        } else if (esMasReciente && !esMenosPrecisa) {
+            return true;
+        } else if (esMasReciente && !esMuchoMenosPrecisa && sonDelMismoProveedor) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Comprueba si los dos proveedores de localizacion son iguales
+     * 
+     * @param proveedor1 proveedor
+     * @param proveedor2 proveedor
+     * 
+     * @return "true" si los dos proveedores son iguales y "false" en caso contrario
+     */
+    public static boolean esElMismoProveedor(String proveedor1, String proveedor2) {
+        if (proveedor1 == null) {
+            return proveedor2 == null;
+        }
+        return proveedor1.equals(proveedor2);
     }
     
     /**
-     * Llamada por un observador para ser notificado cuando la localizacion cambia
+     * Registro del observador para ser notificado cuando la localizacion cambia
      * @param observador Observador que se quiere registrar frente a los cambios de estado
      */
     public void registrarObservador(ObservadorLocalizaciones observador){
-    	// TODO: rellenar
+    	observadores.add(observador);
+    }
+    
+    /**
+     * Eliminacion del observador de la lista de observadores cuando ya no es necesario
+     * @param observador
+     */
+    public void eliminarObservador(ObservadorLocalizaciones observador){
+    	observadores.remove(observador);
     }
  
     @Override
@@ -98,17 +183,30 @@ public class LocalizadorUsuario extends Service
     }
     
     
+    /**
+     * Gestion de los errores al conectarse al cliente de localizaciones de Google
+     * @param connectionResult Devuelve el resultado de la conexion con el cliente de localizaciones
+     */
 	@Override
-	public void onConnectionFailed(ConnectionResult arg0) {
-		// TODO Auto-generated method stub
+	public void onConnectionFailed(ConnectionResult connectionResult) {
+		switch(connectionResult.getErrorCode()){
+			case ConnectionResult.SUCCESS:
+				break;
+			default:
+				Toast.makeText(mContext, "Se ha producido un error mientras se establecia conexion con los servicios de Google", Toast.LENGTH_LONG).show();
+				break;
+		}
 	}
 
+	/**
+	 * Proceso de conexion a los servicios de ubicacion de Google, en el que se
+	 * solicitan actualizaciones de ubicacion
+	 * @param arg0
+	 */
 	@Override
 	public void onConnected(Bundle arg0) {
 		Log.d("onConnected()","onConnected()");
 		
-//		locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-
 	    gps_activado = false;
 	    try {
 	    gps_activado = loc_manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -133,11 +231,17 @@ public class LocalizadorUsuario extends Service
 	    }
 	}
 	
+	/**
+	 * Peticion de actualizaciones de localizacion
+	 */
 	protected void solicitarActualizaciones(){
 		if(!google_API_client.isConnected())
 			google_API_client.connect();
 	}
 	
+	/**
+	 * Detencion de las actualizaciones de localizacion
+	 */
 	protected void pararActualizaciones(){
 		if(google_API_client.isConnected()){
 			LocationServices.FusedLocationApi.removeLocationUpdates(google_API_client, this);	
@@ -146,53 +250,20 @@ public class LocalizadorUsuario extends Service
 		
 	}
 	
-	protected void pararActualizacionesSinServicios(){
-		if(map.solicitandoActualizaciones){
-			loc_manager.removeUpdates(this);
-			map.solicitandoActualizaciones = false;
-		}
-	}
-	
-	protected void solicitarActualizacionesSinServicios(){
-		if(loc_manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-			PROVIDER = LocationManager.GPS_PROVIDER;
-		if(loc_manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-			PROVIDER = LocationManager.NETWORK_PROVIDER;
-		if(!map.solicitandoActualizaciones){
-			loc_manager.requestLocationUpdates(PROVIDER, Utils.getTiempoMinimo(), Utils.getDistanciaMinima(), this);
-			map.solicitandoActualizaciones = true;
-		}
-	}
-
 	@Override
 	public void onConnectionSuspended(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onProviderEnabled(String provider) {
-		PROVIDER = provider;
-		
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-		// TODO Auto-generated method stub
-	}
 	
 	@Override
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
-		
 	}
 	
+	/**
+	 * Validacion de los servicios de Google presentes en el dispositivo.
+	 * En el caso de que no esten presentes, se muestra un mensaje de error.
+	 * @return "true" si existen servicios de Google disponibles || "false" en caso contrario
+	 */
 	private boolean servicesConnected() {
 		// Comprueba que los servicios de Google Play estén disponibles
 		int resultCode =
@@ -208,9 +279,49 @@ public class LocalizadorUsuario extends Service
 			// Los servicios de Google Play no estan disponibles por alguna razon.
 		} else {
 			Log.d(Utils.ASIMOV,"Los servicios de Google Play NO están disponibles.");
+			int errorCode = new ConnectionResult(resultCode, PendingIntent.getActivity(map.getApplicationContext(), resultCode, map.getIntent(), PendingIntent.FLAG_NO_CREATE)).getErrorCode();
+			// Obtencion del dialogo de error cuando los servicios de Google no están disponibles
+			Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
+					errorCode,
+					map,
+					Utils.CODIGO_ERROR_SIN_SERVICIOS_GOOGLE);
+
+			// Si los servicios de Google Play pueden proporcionar un dialogo de error
+			if (errorDialog != null) {
+				ErrorDialogFragment errorFragment =
+						new ErrorDialogFragment();
+				errorFragment.setDialog(errorDialog);
+				errorFragment.show(
+						map.getFragmentManager(),
+						"Los servicios de Google no están instalados en el terminal.");
+			}
+
 			return false;
 		}
 	}
+	
+	 // Define a DialogFragment that displays the error dialog
+    public static class ErrorDialogFragment extends DialogFragment {
+        // Global field to contain the error dialog
+        private Dialog mDialog;
+
+        // Default constructor. Sets the dialog field to null
+        public ErrorDialogFragment() {
+            super();
+            mDialog = null;
+        }
+
+        // Set the dialog to display
+        public void setDialog(Dialog dialog) {
+            mDialog = dialog;
+        }
+
+        // Return a Dialog to the DialogFragment.
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return mDialog;
+        }
+    }
 	
 }
 	

@@ -8,7 +8,10 @@
     <string name="distanciaACentroSalud">Distance: </string>
     <string name="ubicacionActual">You are here</string>
 	<string name="clickMarcador">Click to see more</string>
-
+	<string name="rutaACentro">Route to health center</string>
+	<string name="ruta">Route</string>
+	<string name="miUbicacion">My location</string>
+	
     <string name="databaseError">The database could not be loaded, some localizations might be missing.</string>
 	<string name="errorCentrosSalud">The health centers could not be located</string>
 
@@ -61,6 +64,7 @@
     <string name="color_usuario_sum">Color of the user current position</string>
     <string name="color_centros">Health center color</string>
     <string name="color_centros_sum">Color of all the health center markers</string>
+    <string name="color_centro_mas_cercano">Color of the nearest health center</string>
     <string-array name="colores">
         <item>Azure</item>
         <item>Green</item>
@@ -79,7 +83,19 @@
         <item>HUE_VIOLET</item>
         <item>HUE_YELLOW</item>
     </string-array>
-    
+    <string name="modo_desplazamiento">Mode of transport</string>
+    <string name="modo_desplazamiento_sum">Walking, Driving or Public Transport</string>
+        <string-array name="modos_desplazamiento">
+        <item>Walking</item>
+        <item>Driving</item>
+        <item>Public transport</item>
+    </string-array>
+    <string-array name="modos_desplazamiento_valores">
+        <item>ANDANDO</item>
+        <item>COCHE</item>
+        <item>TRANSPORTE_PUBLICO</item>
+   </string-array>
+        
     <string name="acerca">About&#8230;</string>
     <string name="ayuda">Help</string>
 </resources>
