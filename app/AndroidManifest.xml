@@ -11,11 +11,12 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <!-- Permisos recomendados -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-	
+    <uses-permission android:name="com.asimov.healthwalk.permission.MAPS_RECEIVE" />
     
     
     <!-- Restriccion de uso: Solo dispositivos con OpenGL ES version 2 o superior -->
@@ -33,15 +34,24 @@
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyCy9Fj2VIBQWpMwgoqFfKeWlgoiPEddnWg" />
+           	android:value="AIzaSyBri273jnbsQEo2DbOhpHMk_Wys6mn8bJY" />
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:name=".MapActivity"
+            android:label="@string/map_activity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".CentroSaludActivity"
+            android:label="@string/centro_salud_activity"
+            android:parentActivityName=".MapActivity">
+        </activity>
+        <activity
+            android:name=".PreferenciasActivity"
+            android:label="@string/preferencias"
+            android:parentActivityName=".MapActivity">
         </activity>
     </application>
 

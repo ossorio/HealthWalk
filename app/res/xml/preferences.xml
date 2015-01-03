@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/actualizaciones">
+        <EditTextPreference android:key="tiempo_minimo" android:summary="@string/tiempo_minimo_sum" android:title="@string/tiempo_minimo" android:defaultValue="1"/>
+        <EditTextPreference android:summary="@string/distancia_minima_sum" android:title="@string/distancia_minima" android:defaultValue="10" android:key="distancia_minima"/>
+        <ListPreference android:summary="@string/prioridad_sum" android:title="@string/prioridad" android:key="prioridad" android:entries="@array/prioridades" android:entryValues="@array/prioridades_valores" android:defaultValue="PRIORITY_BALANCED_POWER_ACCURACY"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/mapa">
+        <EditTextPreference android:summary="@string/radio_sum" android:title="@string/radio" android:key="radio" android:defaultValue="3000"/>
+        <ListPreference android:title="@string/tipo_mapa" android:key="tipo_mapa" android:entries="@array/tipos_mapa" android:entryValues="@array/tipos_mapa_valores" android:defaultValue="MAP_TYPE_NORMAL"/>
+        <ListPreference android:key="color_usuario" android:entries="@array/colores" android:entryValues="@array/colores_valores" android:title="@string/color_usuario" android:summary="@string/color_usuario_sum" android:defaultValue="HUE_GREEN"/>
+        <ListPreference android:key="color_centros_salud" android:entries="@array/colores" android:entryValues="@array/colores_valores" android:title="@string/color_centros" android:summary="@string/color_centros_sum" android:defaultValue="HUE_RED"/>
+        <ListPreference android:key="color_centro_mas_cercano" android:entries="@array/colores" android:entryValues="@array/colores_valores" android:title="@string/color_centros" android:summary="@string/color_centro_mas_cercano" android:defaultValue="HUE_AZURE"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/ruta">
+        <ListPreference android:key="modo_desplazamiento" android:entries="@array/modos_desplazamiento" android:entryValues="@array/modos_desplazamiento_valores" android:title="@string/modo_desplazamiento" android:summary="@string/modo_desplazamiento_sum" android:defaultValue="ANDANDO"/>
+    </PreferenceCategory>
+    
+
+</PreferenceScreen>

@@ -1,8 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <string name="app_name">HealthWalk</string>
-	<string name="sinDestinoMapa">Select the destination</string>
-	<string name="databaseError">The database could not be loaded, some localizations might be missing.</string>
+    <string name="app_name" tools:ignore="MissingTranslation">HealthWalk</string>
+    <string name="map_activity">Map of health centers</string>
+    <string name="sinDestinoMapa">Select the destination</string>
+    <string name="ubicando">Locating&#8230;</string>
+    <string name="distanciaACentroSalud">Distance: </string>
+    <string name="ubicacionActual">You are here</string>
+	<string name="clickMarcador">Click to see more</string>
+	<string name="rutaACentro">Route to health center</string>
+	<string name="ruta">Route</string>
+	<string name="miUbicacion">My location</string>
+	
+    <string name="databaseError">The database could not be loaded, some localizations might be missing.</string>
+	<string name="errorCentrosSalud">The health centers could not be located</string>
+
+    <string name="centro_salud_activity">Health center info</string>
+    <string name="nombre">Name:</string>
+    <string name="ciudad">City:</string>
+    <string name="telefono">Telephone:</string>
+    <string name="direccion">Address:</string>
+    <string name="llamar">Call</string>
     
+    <string name="preferencias">Preferences</string>
+    <string name="actualizaciones">Updatings</string>
+    <string name="tiempo_minimo">Minimum time</string>
+    <string name="tiempo_minimo_sum">Minimum time in seconds between GPS updatings</string>
+    <string name="distancia_minima">Minimum distance</string>
+    <string name="distancia_minima_sum">Minimum distance in meters that will fire a GPS updating</string>
+    <string name="prioridad">Priority</string>
+    <string name="prioridad_sum">Priority that the GPS updating will follow</string>
+    <string-array name="prioridades">
+        <item>Balanced power accuracy</item>
+        <item>High accuracy</item>
+        <item>Low power</item>
+        <item>No power</item>
+    </string-array>
+    <string-array name="prioridades_valores">
+        <item>PRIORITY_BALANCED_POWER_ACCURACY</item>
+        <item>PRIORITY_HIGH_ACCURACY</item>
+        <item>PRIORITY_LOW_POWER</item>
+        <item>PRIORITY_NO_POWER</item>
+    </string-array>
+    <string name="mapa">Map</string>
+    <string name="radio">Radius of search</string>
+    <string name="radio_sum">Maximum distance in meters between your current location and a health center</string>
+    <string name="tipo_mapa">Type of map</string>
+    <string-array name="tipos_mapa">
+        <item>Hybrid</item>
+        <item>None</item>
+        <item>Normal</item>
+        <item>Satellite</item>
+        <item>Terrain</item>
+    </string-array>
+    <string-array name="tipos_mapa_valores">
+        <item>MAP_TYPE_HYBRID</item>
+        <item>MAP_TYPE_NONE</item>
+        <item>MAP_TYPE_NORMAL</item>
+        <item>MAP_TYPE_SATELLITE</item>
+        <item>MAP_TYPE_TERRAIN</item>
+    </string-array>
+    <string name="color_usuario">User color</string>
+    <string name="color_usuario_sum">Color of the user current position</string>
+    <string name="color_centros">Health center color</string>
+    <string name="color_centros_sum">Color of all the health center markers</string>
+    <string name="color_centro_mas_cercano">Color of the nearest health center</string>
+    <string-array name="colores">
+        <item>Azure</item>
+        <item>Green</item>
+        <item>Magenta</item>
+        <item>Orange</item>
+        <item>Red</item>
+        <item>Violet</item>
+        <item>Yellow</item>
+    </string-array>
+    <string-array name="colores_valores">
+        <item>HUE_AZURE</item>
+        <item>HUE_GREEN</item>
+        <item>HUE_MAGENTA</item>
+        <item>HUE_ORANGE</item>
+        <item>HUE_RED</item>
+        <item>HUE_VIOLET</item>
+        <item>HUE_YELLOW</item>
+    </string-array>
+    <string name="modo_desplazamiento">Mode of transport</string>
+    <string name="modo_desplazamiento_sum">Walking, Driving or Public Transport</string>
+        <string-array name="modos_desplazamiento">
+        <item>Walking</item>
+        <item>Driving</item>
+        <item>Public transport</item>
+    </string-array>
+    <string-array name="modos_desplazamiento_valores">
+        <item>ANDANDO</item>
+        <item>COCHE</item>
+        <item>TRANSPORTE_PUBLICO</item>
+   </string-array>
+        
+    <string name="acerca">About&#8230;</string>
+    <string name="ayuda">Help</string>
 </resources>

@@ -9,14 +9,4 @@
     tools:context="com.example.healthwalk.HelpActivity"
     android:background="@drawable/background" >
 
-    <Button
-        android:id="@+id/buttonBack1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="102dp"
-        android:layout_marginTop="30dp"
-        android:text="Back" />
-    
-    </RelativeLayout>
+</RelativeLayout>

@@ -23,11 +23,41 @@
             android:layout_marginLeft="2dip"
             android:layout_marginRight="2dip"
             android:layout_marginTop="2dip"
-            android:text="@string/sinDestinoMapa"
-            android:textAppearance="?android:attr/textAppearanceLarge" 
-			android:gravity="center"/>
-        	<!--  android:layout_alignParentBottom="true" -->
-            <!--  android:layout_centerHorizontal="true" -->
+            android:maxLines="4"
+            android:text="@string/ubicando"
+            android:gravity="center"
+           	android:textAppearance="?android:attr/textAppearanceSmall" />
+           
     </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/botonRuta"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_alignEnd="@+id/contenedor"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignRight="@+id/contenedor"
+        android:layout_margin="5dp"
+        android:alpha="1"
+        android:background="@drawable/boton_ruta_mapa"
+        android:contentDescription="@string/rutaACentro"
+        android:padding="2dp"
+        android:src="@android:drawable/ic_menu_directions"
+        android:tint="#0fffffff" />
+
+    <ImageButton
+        android:id="@+id/botonUbicacion"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_above="@+id/botonRuta"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"
+        android:background="@drawable/boton_ubicacion_mapa"
+        android:contentDescription="@string/miUbicacion"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:tint="#000000" />
 
 </RelativeLayout>
