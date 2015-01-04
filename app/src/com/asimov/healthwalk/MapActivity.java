@@ -3,6 +3,7 @@ package com.asimov.healthwalk;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asimov.healthwalk.LocalizadorUsuario.ErrorDialogFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -39,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 public class MapActivity extends FragmentActivity implements ObservadorLocalizaciones, OnInfoWindowClickListener {
 	
+	private boolean cambiosEnPreferencias;
 	private boolean appRestaurada;
 	private Fragment fragmento;
 	
@@ -101,6 +104,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		});
 
 		if(savedInstanceState != null){
+			repositorio.start();
 			localizacion_actual = savedInstanceState.getParcelable("localizacion");
 			fragmento = getFragmentManager().getFragment(savedInstanceState, "fragmento");
 			mMap = ((MapFragment) fragmento).getMap();
@@ -109,12 +113,19 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 			appRestaurada = true;
 		}else{
 			// TODO: si no tiene una version del services > 6171000 peta
-			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+			try{
+				mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+			}catch (NullPointerException exception){
+				ErrorDialogFragment errorFragment = new ErrorDialogFragment();
+				Dialog errorDialog = new Dialog(mContext);
+				errorFragment.muestraDialogoError(errorDialog, this, getString(R.string.errorVersionServicios));
+			}
 			texto.setGravity(Gravity.CENTER);
 		}
 		mMap.getUiSettings().setZoomControlsEnabled(false);
 		mMap.getUiSettings().setMyLocationButtonEnabled(false);
 		mMap.setOnInfoWindowClickListener(this);
+		cambiosEnPreferencias = false;
 	}
 	
 	/**
@@ -124,13 +135,16 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	protected void onResume() {
 		Log.d(Utils.ASIMOV, "MapActivity onResume");
 		super.onResume();
-		mMap.setMapType(Utils.getTipoMapa());
 		repositorio.start();
+		mMap.setMapType(Utils.getTipoMapa());
+		if(cambiosEnPreferencias)
+			cargaNuevasPreferencias();
 		
 		localizador.solicitarActualizaciones();
 		
 		actualizaMarcadorUsuario(localizacion_actual);
 		muestraInfoCentroSalud(localizacion_actual);
+		cambiosEnPreferencias = false;
 	}
 	
 	/**
@@ -195,8 +209,8 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
             case R.id.preferencias_menu:
             	Intent intent = new Intent(this, PreferenciasActivity.class);
             	startActivity(intent);
+            	cambiosEnPreferencias = true;
             	return true;
-
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -232,7 +246,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		if(nueva_localizacion != null){
 			String etiqueta = getString(R.string.ubicacionActual);
 			
-			if(marcadorUbicacionActual == null && !appRestaurada)
+			if(marcadorUbicacionActual == null && !appRestaurada && !cambiosEnPreferencias)
 				muestraLocalizacionEnMapa(nueva_localizacion);
 			else
 				eliminaMarcador(marcadorUbicacionActual);
@@ -241,8 +255,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 
 			Log.d(Utils.ASIMOV, "Actualizacion para localizacion dibujado.");
 		}else{
-			LatLng cyl = new LatLng(40.346544, -3.563344);
-			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cyl, Utils.ZOOM_ES));
+			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Utils.LOCALIZACION_CYL, Utils.ZOOM_CYL));
 		}
 	}
 
@@ -340,6 +353,14 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 			// Situa el centro del mapa sobre la ubicacion actual
 			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
 		}
+	}
+	
+	protected void cargaNuevasPreferencias(){
+		
+		localizador.loc_request.setFastestInterval(Utils.getTiempoMinimo());
+		localizador.loc_request.setInterval(Utils.getTiempoMinimo() * 3).setPriority(Utils.getPrioridad());
+		localizador.loc_request.setSmallestDisplacement(Utils.getDistanciaMinima());;
+		actualizaCentrosSalud(localizacion_actual);
 	}
 }
 	

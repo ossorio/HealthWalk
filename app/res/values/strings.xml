@@ -11,6 +11,9 @@
 	<string name="rutaACentro">Route to health center</string>
 	<string name="ruta">Route</string>
 	<string name="miUbicacion">My location</string>
+	<string name="errorSinServicios">Google Services are not installed on this device. Install, if possible.</string>
+	<string name="errorVersionServicios">The actual version of Google Services is not compatible with this app. Upgrade, if possible.</string>
+	
 	
     <string name="databaseError">The database could not be loaded, some localizations might be missing.</string>
 	<string name="errorCentrosSalud">The health centers could not be located</string>
@@ -44,7 +47,7 @@
     </string-array>
     <string name="mapa">Map</string>
     <string name="radio">Radius of search</string>
-    <string name="radio_sum">Maximum distance in meters between your current location and a health center</string>
+    <string name="radio_sum">Maximum distance in km between your current location and a health center</string>
     <string name="tipo_mapa">Type of map</string>
     <string-array name="tipos_mapa">
         <item>Hybrid</item>
