@@ -7,6 +7,7 @@ import android.preference.PreferenceManager;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Parametros del sistema, se utilizan las preferencias para devolverlos
@@ -19,22 +20,22 @@ public class Utils {
 	// Constantes, no se modifican en las preferencias
 	public final static String ASIMOV = "ASIMOV";
 	public final static float ZOOM_LEVEL = 17.0f;
-	public final static float ZOOM_ES = 5.5f;
+	public final static float ZOOM_CYL = 7.25f;
     public final static String BASE_DATOS = "localizaciones";
     public final static int CODIGO_ERROR_SIN_SERVICIOS_GOOGLE = 9000;
-    public static final int MARCO_TIEMPO = 1000 * 60;
+    public final static int MARCO_TIEMPO = 1000 * 60;
+    public final static LatLng LOCALIZACION_CYL = new LatLng(41.666667, -4.66);
     
     // Para la seccion de Actualizaciones de preferencias
-    // TODO: es necesario reiniciar para que se apliquen los cambios?
     private final static String DISTANCIA_MINIMA = "10"; // 10 metros
     private final static String TIEMPO_MINIMO = "1"; // 1 segundos
-    private final static String PRIORIDAD = "PRIORITY_HIGH_ACCURACY";
+    private final static String PRIORIDAD = "PRIORITY_BALANCED_POWER_ACCURACY";
     
     // Valores por defecto para la seccion de Mapa de preferencias
 	private final static String COLOR_MARCADOR_UBICACION_ACTUAL = "HUE_GREEN";
 	private final static String COLOR_MARCADOR_CENTRO_MAS_CERCANO = "HUE_AZURE";
 	private final static String COLOR_MARCADOR_CENTRO_SALUD = "HUE_RED";
-    private final static String RADIO_BUSQUEDA = "3000";
+    private final static String RADIO_BUSQUEDA = "3";
     private final static String TIPO_MAPA = "MAP_TYPE_NORMAL";
     private final static String MODO_DESPLAZAMIENTO = "ANDANDO";
     
@@ -105,7 +106,7 @@ public class Utils {
     
     public static double getRadio(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
-    	return Double.parseDouble(sharedPref.getString("radio", RADIO_BUSQUEDA));
+    	return Double.parseDouble(sharedPref.getString("radio", RADIO_BUSQUEDA)) * 1000;
     }
     
     public static int getTipoMapa(){

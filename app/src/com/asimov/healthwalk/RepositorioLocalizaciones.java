@@ -26,7 +26,6 @@ import android.widget.Toast;
  * @author Alejandro Lopez Espinosa
  */
 public class RepositorioLocalizaciones {
-	
 	private Context mContext;
 	private final int TAM_BUFFER = 1024;
 	private final String TABLE = "localizaciones";

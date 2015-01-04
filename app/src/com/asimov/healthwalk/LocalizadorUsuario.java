@@ -2,11 +2,14 @@ package com.asimov.healthwalk;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
@@ -55,7 +58,7 @@ public class LocalizadorUsuario extends Service
     // Gestor de ubicaciones
     protected LocationManager loc_manager;
 
-    private LocationRequest loc_request;
+    protected LocationRequest loc_request;
     
     // Cliente de la API de Google
     protected GoogleApiClient google_API_client;
@@ -207,8 +210,6 @@ public class LocalizadorUsuario extends Service
 	public void onConnected(Bundle arg0) {
 		Log.d("onConnected()","onConnected()");
 		
-//		locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-
 	    gps_activado = false;
 	    try {
 	    gps_activado = loc_manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -252,37 +253,13 @@ public class LocalizadorUsuario extends Service
 		
 	}
 	
-	/*
-	protected void pararActualizacionesSinServicios(){
-		if(map.solicitandoActualizaciones){
-			loc_manager.removeUpdates(this);
-			map.solicitandoActualizaciones = false;
-		}
-	}
-	
-	protected void solicitarActualizacionesSinServicios(){
-		if(loc_manager.isProviderEnabled(LocationManager.GPS_PROVIDER))
-			PROVIDER = LocationManager.GPS_PROVIDER;
-		if(loc_manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-			PROVIDER = LocationManager.NETWORK_PROVIDER;
-		if(!map.solicitandoActualizaciones){
-			loc_manager.requestLocationUpdates(PROVIDER, Utils.getTiempoMinimo(), Utils.getDistanciaMinima(), this);
-			map.solicitandoActualizaciones = true;
-		}
-	}
-	*/
-
 	@Override
 	public void onConnectionSuspended(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	
 	@Override
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	/**
@@ -305,44 +282,75 @@ public class LocalizadorUsuario extends Service
 			// Los servicios de Google Play no estan disponibles por alguna razon.
 		} else {
 			Log.d(Utils.ASIMOV,"Los servicios de Google Play NO están disponibles.");
-			int errorCode = new ConnectionResult(resultCode, PendingIntent.getActivity(map.getApplicationContext(), resultCode, map.getIntent(), PendingIntent.FLAG_NO_CREATE)).getErrorCode();
-			// Obtencion del dialogo de error cuando los servicios de Google no están disponibles
-			Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-					errorCode,
-					map,
-					Utils.CODIGO_ERROR_SIN_SERVICIOS_GOOGLE);
-
-			// Si los servicios de Google Play pueden proporcionar un dialogo de error
-			if (errorDialog != null) {
-				ErrorDialogFragment errorFragment =
-						new ErrorDialogFragment();
-				errorFragment.setDialog(errorDialog);
-				errorFragment.show(
-						map.getFragmentManager(),
-						"Los servicios de Google no están instalados en el terminal.");
-			}
-
+			int errorCode = new ConnectionResult(resultCode, PendingIntent.getActivity(map.getApplicationContext(), 
+												resultCode, map.getIntent(), PendingIntent.FLAG_NO_CREATE)).getErrorCode();
+			muestraDialogoErrorSinServicios(errorCode);
 			return false;
 		}
 	}
 	
-	 // Define a DialogFragment that displays the error dialog
+	/**
+	 * Obtencion del dialogo de error cuando los servicios de Google no están disponibles
+	 * @param errorCode Codigo de error obtenido al comprobar los servicios de Google
+	 */
+	 private void muestraDialogoErrorSinServicios(int errorCode) {
+		 Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
+				 errorCode,
+				 map,
+				 Utils.CODIGO_ERROR_SIN_SERVICIOS_GOOGLE);
+
+		 // Si los servicios de Google Play pueden proporcionar un dialogo de error
+		 if (errorDialog != null) {
+			 ErrorDialogFragment errorFragment = new ErrorDialogFragment();
+			 errorFragment.muestraDialogoError(errorDialog, map, getString(R.string.errorSinServicios));
+		 }
+		
+		
+	}
+
+	/**
+	 * Define un DialogFragment que muestra el mensaje de error
+	 */
     public static class ErrorDialogFragment extends DialogFragment {
-        // Global field to contain the error dialog
+        // Dialogo de error
         private Dialog mDialog;
 
-        // Default constructor. Sets the dialog field to null
+        /**
+         * Constructor por defecto
+         */
         public ErrorDialogFragment() {
             super();
             mDialog = null;
         }
-
-        // Set the dialog to display
+        
+        /**
+         * Asigna el dialogo de error a un nuevo dialogo
+         * @param dialog
+         */
         public void setDialog(Dialog dialog) {
             mDialog = dialog;
         }
-
-        // Return a Dialog to the DialogFragment.
+        
+        /**
+         * Muestra un dialogo de error en la aplicacion y etiqueta indicadas
+         * @param dialog 
+         */
+        public void muestraDialogoError(Dialog errorDialog, final Activity activity, String tag){
+        	setDialog(errorDialog);
+        	show(
+        			activity.getFragmentManager(),
+        			tag);
+        	errorDialog.setOnDismissListener(new OnDismissListener() {
+        		@Override
+        		public void onDismiss(DialogInterface dialog) {
+        			activity.finish();
+        		}
+        	});
+        }
+        
+        /**
+         * Permite construir un dialogo personalizado en vez del basico
+         */
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return mDialog;

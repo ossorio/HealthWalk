@@ -6,7 +6,7 @@
         <ListPreference android:summary="@string/prioridad_sum" android:title="@string/prioridad" android:key="prioridad" android:entries="@array/prioridades" android:entryValues="@array/prioridades_valores" android:defaultValue="PRIORITY_BALANCED_POWER_ACCURACY"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/mapa">
-        <EditTextPreference android:summary="@string/radio_sum" android:title="@string/radio" android:key="radio" android:defaultValue="3000"/>
+        <EditTextPreference android:summary="@string/radio_sum" android:title="@string/radio" android:key="radio" android:defaultValue="3"/>
         <ListPreference android:title="@string/tipo_mapa" android:key="tipo_mapa" android:entries="@array/tipos_mapa" android:entryValues="@array/tipos_mapa_valores" android:defaultValue="MAP_TYPE_NORMAL"/>
         <ListPreference android:key="color_usuario" android:entries="@array/colores" android:entryValues="@array/colores_valores" android:title="@string/color_usuario" android:summary="@string/color_usuario_sum" android:defaultValue="HUE_GREEN"/>
         <ListPreference android:key="color_centros_salud" android:entries="@array/colores" android:entryValues="@array/colores_valores" android:title="@string/color_centros" android:summary="@string/color_centros_sum" android:defaultValue="HUE_RED"/>

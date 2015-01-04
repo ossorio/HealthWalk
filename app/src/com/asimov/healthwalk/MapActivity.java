@@ -3,6 +3,7 @@ package com.asimov.healthwalk;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -22,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.asimov.healthwalk.LocalizadorUsuario.ErrorDialogFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
@@ -39,6 +41,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
  */
 public class MapActivity extends FragmentActivity implements ObservadorLocalizaciones, OnInfoWindowClickListener {
 	
+	private boolean cambiosEnPreferencias;
 	private boolean appRestaurada;
 	private Fragment fragmento;
 	
@@ -57,9 +60,6 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	protected Marker marcadorUbicacionActual;
 	private ArrayList<Marker> marcadoresCentrosSalud;
 
-	// Observador de localizaciones que cambia cuando se modifica la localizacion
-	private ObservadorLocalizaciones observador;
-	
 	// Localizador que llama a esta clase cada vez que hay una nueva actualizacion
 	// disponible
 	private LocalizadorUsuario localizador;
@@ -73,86 +73,60 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	public void onCreate(Bundle savedInstanceState) {
 		Log.d(Utils.ASIMOV, "MapActivity onCreate");
 		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_map);
+		Utils.setContext(this);
+
+		repositorio = new RepositorioLocalizaciones(this, Utils.BASE_DATOS);
+		localizador = new LocalizadorUsuario(this);
+		localizador.registrarObservador(this);
+
+		centrosSalud = new ArrayList<CentroSalud>();
+		marcadoresCentrosSalud = new ArrayList<Marker>();
+	
+		texto = (TextView) findViewById(R.id.textoMapa);
+
+		botonUbicacion = (ImageButton)findViewById(R.id.botonUbicacion);
+		botonUbicacion.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+					muestraLocalizacionEnMapa(localizacion_actual);
+			}
+		});
+
+		botonRuta = (ImageButton)findViewById(R.id.botonRuta);
+		botonRuta.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+					if(centrosSalud != null && centrosSalud.size() > 0)
+						muestraRutaACentroSalud(centrosSalud.get(0));
+			}
+		});
+
 		if(savedInstanceState != null){
-			setContentView(R.layout.activity_map);
-			centrosSalud = new ArrayList<CentroSalud>();
-			Utils.setContext(this);
+			repositorio.start();
 			localizacion_actual = savedInstanceState.getParcelable("localizacion");
-			
 			fragmento = getFragmentManager().getFragment(savedInstanceState, "fragmento");
 			mMap = ((MapFragment) fragmento).getMap();
-			mMap.getUiSettings().setZoomControlsEnabled(false);
-			mMap.getUiSettings().setMyLocationButtonEnabled(false);
-			mMap.setOnInfoWindowClickListener(this);
-			
-			botonUbicacion = (ImageButton)findViewById(R.id.botonUbicacion);
-			botonUbicacion.setOnClickListener(onClickListener);
-			botonRuta = (ImageButton)findViewById(R.id.botonRuta);
-			botonRuta.setOnClickListener(onClickListener);
-			texto = (TextView) findViewById(R.id.textoMapa);
 			texto.setText(savedInstanceState.getString("texto"));
-			marcadoresCentrosSalud = new ArrayList<Marker>();
-			localizador = new LocalizadorUsuario(this);
-			localizador.registrarObservador(observador);
-			repositorio = new RepositorioLocalizaciones(this, Utils.BASE_DATOS);
-			repositorio.start();
 			actualizaCentrosSalud(localizacion_actual);
 			appRestaurada = true;
-			
 		}else{
-			setContentView(R.layout.activity_map);
-			centrosSalud = new ArrayList<CentroSalud>();
-			Utils.setContext(this);
-
 			// TODO: si no tiene una version del services > 6171000 peta
-			mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-			mMap.getUiSettings().setZoomControlsEnabled(false);
-			mMap.getUiSettings().setMyLocationButtonEnabled(false);
-			mMap.setOnInfoWindowClickListener(this);
-
-			texto = (TextView) findViewById(R.id.textoMapa);
+			try{
+				mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+			}catch (NullPointerException exception){
+				ErrorDialogFragment errorFragment = new ErrorDialogFragment();
+				Dialog errorDialog = new Dialog(mContext);
+				errorFragment.muestraDialogoError(errorDialog, this, getString(R.string.errorVersionServicios));
+			}
 			texto.setGravity(Gravity.CENTER);
-			botonUbicacion = (ImageButton)findViewById(R.id.botonUbicacion);
-			botonUbicacion.setOnClickListener(onClickListener);
-			botonRuta = (ImageButton)findViewById(R.id.botonRuta);
-			botonRuta.setOnClickListener(onClickListener);
-			marcadoresCentrosSalud = new ArrayList<Marker>();
-
-			localizador = new LocalizadorUsuario(this);
-			localizador.registrarObservador(observador);
-			repositorio = new RepositorioLocalizaciones(this, Utils.BASE_DATOS);
-
 		}
+		mMap.getUiSettings().setZoomControlsEnabled(false);
+		mMap.getUiSettings().setMyLocationButtonEnabled(false);
+		mMap.setOnInfoWindowClickListener(this);
+		cambiosEnPreferencias = false;
 	}
-	
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-
-		outState.putParcelable("localizacion", localizacion_actual);
-		outState.putString("texto", (String) texto.getText());
-		getFragmentManager().putFragment(outState, "fragmento", getFragmentManager().findFragmentById(R.id.map));
-
-	}
-	
-//	@Override
-//	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-//		super.onRestoreInstanceState(savedInstanceState);
-//		centrosSalud = new ArrayList<CentroSalud>();
-//		Utils.setContext(this);
-//		fragmento = getFragmentManager().getFragment(savedInstanceState, "fragmento");
-//		localizacion_actual = savedInstanceState.getParcelable("localizacion");
-//		
-////		MapFragment fragment = (MapFragment) getFragmentManager().getFragment(savedInstanceState, "fragmento");
-//		mMap = ((MapFragment) fragmento).getMap();
-//		botonRuta = (ImageButton)findViewById(R.id.botonRuta);
-//		texto = (TextView) findViewById(R.id.textoMapa);
-//		texto.setText(savedInstanceState.getString("texto"));
-//		marcadoresCentrosSalud = new ArrayList<Marker>();
-////		localizador = new LocalizadorUsuario(this);
-//		repositorio.start();
-//		cambioLocalizacion(localizacion_actual);
-//	}
 	
 	/**
 	 * Arranca los recursos compartidos como el repositorio y el localizador de usuario
@@ -161,13 +135,16 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	protected void onResume() {
 		Log.d(Utils.ASIMOV, "MapActivity onResume");
 		super.onResume();
-		mMap.setMapType(Utils.getTipoMapa());
 		repositorio.start();
+		mMap.setMapType(Utils.getTipoMapa());
+		if(cambiosEnPreferencias)
+			cargaNuevasPreferencias();
 		
 		localizador.solicitarActualizaciones();
 		
 		actualizaMarcadorUsuario(localizacion_actual);
 		muestraInfoCentroSalud(localizacion_actual);
+		cambiosEnPreferencias = false;
 	}
 	
 	/**
@@ -185,8 +162,19 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		localizador.eliminarObservador(observador);
+		localizador.eliminarObservador(this);
 	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+
+		outState.putParcelable("localizacion", localizacion_actual);
+		outState.putString("texto", (String) texto.getText());
+		getFragmentManager().putFragment(outState, "fragmento", getFragmentManager().findFragmentById(R.id.map));
+
+	}
+	
 	
 	/**
 	 * Llamado cuando se pincha en un marcador del mapa
@@ -208,22 +196,6 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 		}
 	}
 	
-	private OnClickListener onClickListener = new OnClickListener() {
-
-	    @Override
-	    public void onClick(final View v) {
-	             switch(v.getId()){
-	                 case R.id.botonRuta:
-	                	 muestraRutaACentroSalud(centrosSalud.get(0));
-	                	 break;
-	                 case R.id.botonUbicacion:
-	                	 muestraLocalizacionEnMapa(localizacion_actual);
-	                	 break;
-	              }
-
-	    }
-	};
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
@@ -237,8 +209,8 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
             case R.id.preferencias_menu:
             	Intent intent = new Intent(this, PreferenciasActivity.class);
             	startActivity(intent);
+            	cambiosEnPreferencias = true;
             	return true;
-
 			default:
 				return super.onOptionsItemSelected(item);
 		}
@@ -271,28 +243,19 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	 * @param nueva_localizacion Nueva localizacion del marcador de usuario
 	 */
 	protected void actualizaMarcadorUsuario(Location nueva_localizacion){
-//		if(marcadorUbicacionActual != null){
-//			eliminaMarcador(marcadorUbicacionActual);
-//			marcadorUbicacionActual = null;
-//		}
-
 		if(nueva_localizacion != null){
 			String etiqueta = getString(R.string.ubicacionActual);
-//			LatLng posicion = new LatLng(nueva_localizacion.getLatitude(), nueva_localizacion.getLongitude());
 			
-			if(marcadorUbicacionActual == null && !appRestaurada)
+			if(marcadorUbicacionActual == null && !appRestaurada && !cambiosEnPreferencias)
 				muestraLocalizacionEnMapa(nueva_localizacion);
 			else
 				eliminaMarcador(marcadorUbicacionActual);
 			
 			marcadorUbicacionActual = agregaMarcador(nueva_localizacion, etiqueta, Utils.getColorUsuario());
 
-			// Situa la panoramica del mapa sobre una ubicacion
-//			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
 			Log.d(Utils.ASIMOV, "Actualizacion para localizacion dibujado.");
 		}else{
-			LatLng cyl = new LatLng(40.346544, -3.563344);
-			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cyl, Utils.ZOOM_ES));
+			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(Utils.LOCALIZACION_CYL, Utils.ZOOM_CYL));
 		}
 	}
 
@@ -368,29 +331,36 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	}
 	
 	protected void muestraRutaACentroSalud(CentroSalud centroSalud){
-	 Location locCentroSalud = centroSalud.getLocalizacion();
-   	 String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?&daddr=%f,%f&dirflg=%c", locCentroSalud.getLatitude(), locCentroSalud.getLongitude(), Utils.getModoDesplazamiento());
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
+		Location locCentroSalud = centroSalud.getLocalizacion();
+		String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?&daddr=%f,%f&dirflg=%c", locCentroSalud.getLatitude(), locCentroSalud.getLongitude(), Utils.getModoDesplazamiento());
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+		intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
         try
         {
         	startActivity(intent);
         }
         catch(ActivityNotFoundException ex)
         {
-        
         	Intent intentInstalar = new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.apps.maps"));
            	startActivity(intentInstalar);
-                
            	finish();
-     
         }
 	}
 	
 	protected void muestraLocalizacionEnMapa(Location localizacion){
-		LatLng posicion = new LatLng(localizacion.getLatitude(), localizacion.getLongitude());
-		// Situa el centro del mapa sobre la ubicacion actual
-		mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
+		if(localizacion != null){
+			LatLng posicion = new LatLng(localizacion.getLatitude(), localizacion.getLongitude());
+			// Situa el centro del mapa sobre la ubicacion actual
+			mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(posicion, Utils.ZOOM_LEVEL));
+		}
+	}
+	
+	protected void cargaNuevasPreferencias(){
+		
+		localizador.loc_request.setFastestInterval(Utils.getTiempoMinimo());
+		localizador.loc_request.setInterval(Utils.getTiempoMinimo() * 3).setPriority(Utils.getPrioridad());
+		localizador.loc_request.setSmallestDisplacement(Utils.getDistanciaMinima());;
+		actualizaCentrosSalud(localizacion_actual);
 	}
 }
 	

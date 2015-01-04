@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 /**
  * Actividad para mostrar los centros de salud
+ * @author Oscar Gonzalez Ossorio
  * @author Alejandro Lopez Espinosa
  */
 public class CentroSaludActivity extends Activity {
@@ -60,7 +61,7 @@ public class CentroSaludActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				Location locCentroSalud = centro_salud.getLocalizacion();
-				String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?&daddr=%f,%f&dirflg=%s", locCentroSalud.getLatitude(), locCentroSalud.getLongitude(), "w");
+				String uri = String.format(Locale.ENGLISH, "http://maps.google.com/maps?&daddr=%f,%f&dirflg=%s", locCentroSalud.getLatitude(), locCentroSalud.getLongitude(), Utils.getModoDesplazamiento());
 				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 				intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity");
 				try

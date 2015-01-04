@@ -11,22 +11,16 @@ import android.view.MenuItem;
  * @author Alejandro Lopez Espinosa
  */
 public class PreferenciasActivity extends PreferenceActivity {
+
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
-		
 		getFragmentManager().beginTransaction()
-				.replace(android.R.id.content, new PreferenceFragment(){
-					@Override
-					public void onCreate(Bundle savedInstanceState){
-						super.onCreate(savedInstanceState);
-						addPreferencesFromResource(R.xml.preferences);
-					}
-				})
-				.commit();
+				.replace(android.R.id.content, new MiFragmento()).commit();
 		
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 	}
+	
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -37,4 +31,13 @@ public class PreferenciasActivity extends PreferenceActivity {
 	    }
 	    return super.onOptionsItemSelected(item);
 	}
+	
+	public static class MiFragmento extends PreferenceFragment {
+		@Override
+		public void onCreate(final Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			addPreferencesFromResource(R.xml.preferences);
+		}
+	}
+	
 }
