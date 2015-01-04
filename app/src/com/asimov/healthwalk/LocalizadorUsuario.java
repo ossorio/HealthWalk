@@ -31,7 +31,6 @@ import com.google.android.gms.location.LocationServices;
  * @author Oscar Gonzalez Ossorio
  * @author Alejandro Lopez Espinosa
  */
-
 public class LocalizadorUsuario extends Service 
 								implements com.google.android.gms.location.LocationListener, 
 										   ConnectionCallbacks, 
@@ -253,11 +252,17 @@ public class LocalizadorUsuario extends Service
 		
 	}
 	
+	/**
+	 * Sobrescritos para implementar todos los metodos de ConnectionCallback
+	 */
 	@Override
 	public void onConnectionSuspended(int arg0) {
 	}
 	
 	
+	/**
+	 * Sobrescritos para implementar todos los metodos de ConnectionCallback
+	 */
 	@Override
 	public void onDisconnected() {
 	}
@@ -265,7 +270,7 @@ public class LocalizadorUsuario extends Service
 	/**
 	 * Validacion de los servicios de Google presentes en el dispositivo.
 	 * En el caso de que no esten presentes, se muestra un mensaje de error.
-	 * @return "true" si existen servicios de Google disponibles || "false" en caso contrario
+	 * @return "true" si existen servicios de Google disponibles o "false" en caso contrario
 	 */
 	private boolean servicesConnected() {
 		// Comprueba que los servicios de Google Play estén disponibles

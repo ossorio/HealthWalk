@@ -318,7 +318,7 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	}
 	
 	/**
-	 * Muestra la distancia al centro de salud más cercano
+	 * Muestra la distancia al centro de salud mas cercano
 	 * @param nueva_localizacion Nueva localizacion del marcador de usuario
 	 */
 	protected void muestraInfoCentroSalud(Location nueva_localizacion){
