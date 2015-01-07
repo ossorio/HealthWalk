@@ -2,14 +2,11 @@ package com.asimov.healthwalk;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
@@ -46,6 +43,8 @@ public class LocalizadorUsuario extends Service
     private boolean loc_activada = false;
     private boolean gps_activado = false;
     private boolean red_activada = false;
+    
+    // Actividad que contiene el mapa que utiliza las localizaciones obtenidas
     private MapActivity map;
     
 	// Indica si los servicios de Google Play estan activados
@@ -57,16 +56,23 @@ public class LocalizadorUsuario extends Service
     // Gestor de ubicaciones
     protected LocationManager loc_manager;
 
+    // Objeto que almacena los ajustes de localizacion
     protected LocationRequest loc_request;
     
     // Cliente de la API de Google
     protected GoogleApiClient google_API_client;
 
+    /**
+     * Constructor de la clase LocalizadorUsuario.
+     * Se comprueba la validez de los servicios de Google del dispositivo y se inicializan
+     * los atributos de la clase.
+     * @param context Contexto de la actividad MapActivity
+     */
     public LocalizadorUsuario(Context context) {
     	map = (MapActivity) context;
+    	mContext = context;
     	serviciosActivados = servicesConnected();
     	observadores = new ArrayList<ObservadorLocalizaciones>();
-    	mContext = context;
     	loc_manager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
 		google_API_client = new GoogleApiClient.Builder(mContext)
                                         .addApi(LocationServices.API)
@@ -179,6 +185,9 @@ public class LocalizadorUsuario extends Service
     	observadores.remove(observador);
     }
  
+    /**
+     * Sobreescrito para implementar todos los metodos de Service
+     */
     @Override
     public IBinder onBind(Intent arg0) {
         return null;
@@ -273,7 +282,7 @@ public class LocalizadorUsuario extends Service
 	 * @return "true" si existen servicios de Google disponibles o "false" en caso contrario
 	 */
 	private boolean servicesConnected() {
-		// Comprueba que los servicios de Google Play estén disponibles
+		// Comprueba que los servicios de Google Play esten disponibles
 		int resultCode =
 				GooglePlayServicesUtil.
 				isGooglePlayServicesAvailable(map);
@@ -281,36 +290,27 @@ public class LocalizadorUsuario extends Service
 		if (ConnectionResult.SUCCESS == resultCode) {
 			// Escritura en el log para depuracion
 			Log.d(Utils.ASIMOV,
-					"Los servicios de Google Play están disponibles.");
+					"Los servicios de Google Play estan disponibles.");
 			// Confirmacion de que los servicios estan disponibles
 			return true;
 			// Los servicios de Google Play no estan disponibles por alguna razon.
 		} else {
-			Log.d(Utils.ASIMOV,"Los servicios de Google Play NO están disponibles.");
+			Log.d(Utils.ASIMOV,"Los servicios de Google Play NO estan disponibles.");
 			int errorCode = new ConnectionResult(resultCode, PendingIntent.getActivity(map.getApplicationContext(), 
 												resultCode, map.getIntent(), PendingIntent.FLAG_NO_CREATE)).getErrorCode();
-			muestraDialogoErrorSinServicios(errorCode);
+			Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
+					 errorCode,
+					 map,
+					 Utils.CODIGO_ERROR_SIN_SERVICIOS_GOOGLE);
+	
+			 // Si los servicios de Google Play pueden proporcionar un dialogo de error
+			 if (errorDialog != null) {
+				 ErrorDialogFragment errorFragment = new ErrorDialogFragment();
+				 errorFragment.setDialog(errorDialog);
+				 errorFragment.show(map.getFragmentManager(), mContext.getString(R.string.errorSinServicios));
+			 }
 			return false;
 		}
-	}
-	
-	/**
-	 * Obtencion del dialogo de error cuando los servicios de Google no están disponibles
-	 * @param errorCode Codigo de error obtenido al comprobar los servicios de Google
-	 */
-	 private void muestraDialogoErrorSinServicios(int errorCode) {
-		 Dialog errorDialog = GooglePlayServicesUtil.getErrorDialog(
-				 errorCode,
-				 map,
-				 Utils.CODIGO_ERROR_SIN_SERVICIOS_GOOGLE);
-
-		 // Si los servicios de Google Play pueden proporcionar un dialogo de error
-		 if (errorDialog != null) {
-			 ErrorDialogFragment errorFragment = new ErrorDialogFragment();
-			 errorFragment.muestraDialogoError(errorDialog, map, getString(R.string.errorSinServicios));
-		 }
-		
-		
 	}
 
 	/**
@@ -336,22 +336,6 @@ public class LocalizadorUsuario extends Service
             mDialog = dialog;
         }
         
-        /**
-         * Muestra un dialogo de error en la aplicacion y etiqueta indicadas
-         * @param dialog 
-         */
-        public void muestraDialogoError(Dialog errorDialog, final Activity activity, String tag){
-        	setDialog(errorDialog);
-        	show(
-        			activity.getFragmentManager(),
-        			tag);
-        	errorDialog.setOnDismissListener(new OnDismissListener() {
-        		@Override
-        		public void onDismiss(DialogInterface dialog) {
-        			activity.finish();
-        		}
-        	});
-        }
         
         /**
          * Permite construir un dialogo personalizado en vez del basico
@@ -360,6 +344,7 @@ public class LocalizadorUsuario extends Service
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return mDialog;
         }
+        
     }
 	
 }

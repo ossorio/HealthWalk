@@ -9,6 +9,7 @@ import android.view.MenuItem;
 /**
  * Actividad para las preferencias del sistema
  * @author Alejandro Lopez Espinosa
+ * @author Oscar Gonzalez Ossorio
  */
 public class PreferenciasActivity extends PreferenceActivity {
 
@@ -32,6 +33,10 @@ public class PreferenciasActivity extends PreferenceActivity {
 	    return super.onOptionsItemSelected(item);
 	}
 	
+	/**
+	 * Esta clase estatica se utiliza en la clase PreferenciasActivity para 
+	 * cargar las preferencias en un nuevo fragmento
+	 */
 	public static class MiFragmento extends PreferenceFragment {
 		@Override
 		public void onCreate(final Bundle savedInstanceState) {

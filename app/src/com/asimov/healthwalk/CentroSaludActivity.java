@@ -44,6 +44,8 @@ public class CentroSaludActivity extends Activity {
 		TextView telefono = (TextView) findViewById(R.id.telefono);
 		telefono.setText(getString(R.string.telefono) + " " + centro_salud.getTelefono());
 		
+		// En el caso de que se pulse el boton Llamar de la actividad, se realiza
+		// una llamada al centro de salud seleccionado
 		Button llamar = (Button) findViewById(R.id.llamar);
 		llamar.setOnClickListener(new OnClickListener(){
 			@Override
@@ -55,6 +57,9 @@ public class CentroSaludActivity extends Activity {
 			}
 		});
 		
+		// Si se pulsa el boton Ruta de la actividad, se calcula la ruta en Google Maps.
+		// Si Google Maps no esta instalado en el dispositivo, se abre su pagina de instalacion
+		// Google Play
 		Button ruta = (Button) findViewById(R.id.ruta);
 		ruta.setOnClickListener(new OnClickListener() {
 			
