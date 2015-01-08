@@ -18,6 +18,9 @@ public class Utils {
     public static Context mContext;
 
 	// Constantes, no se modifican en las preferencias
+    public final static String ESTADO_GUARDADO_FRAGMENTO = "fragmento";
+    public final static String ESTADO_GUARDADO_LOCALIZACION = "localizacion";
+    public final static String ESTADO_GUARDADO_TEXTO = "texto";
 	public final static String ASIMOV = "ASIMOV";
 	public final static float ZOOM_LEVEL = 17.0f;
 	public final static float ZOOM_CYL = 7.25f;
@@ -39,20 +42,33 @@ public class Utils {
     private final static String TIPO_MAPA = "MAP_TYPE_NORMAL";
     private final static String MODO_DESPLAZAMIENTO = "ANDANDO";
     
+    /**
+     * Asigna un nuevo contexto al atributo de la clase
+     * @param context Contexto 
+     */
     public static void setContext(Context context){
     	mContext = context;
     }
     
+    /**
+     * @return El tiempo minimo entre actualizaciones establecido en las preferencias
+     */
     public static long getTiempoMinimo(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	return Long.parseLong(sharedPref.getString("tiempo_minimo", TIEMPO_MINIMO)) * 1000;
     }
 
+    /**
+     * @return La distancia minima entre actualizaciones establecida en las preferencias
+     */
     public static long getDistanciaMinima(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	return Long.parseLong(sharedPref.getString("distancia_minima", DISTANCIA_MINIMA));
     }
     
+    /**
+     * @return La prioridad de busqueda de localizaciones establecida en las preferencias
+     */
     public static int getPrioridad(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	switch(sharedPref.getString("prioridad", PRIORIDAD)) {
@@ -68,6 +84,10 @@ public class Utils {
     	return LocationRequest.PRIORITY_HIGH_ACCURACY;
     }
     
+    /**
+     * @param color Color del marcador del centro de salud establecido en las preferencias
+     * @return Color del marcador del centro de salud establecido en las preferencias
+     */
     private static float getColor(String color){
     	switch(color){
     	 	case "HUE_AZURE":
@@ -89,26 +109,41 @@ public class Utils {
     	return BitmapDescriptorFactory.HUE_ROSE;
     }
 
+    /**
+     * @return El color del marcador de la localizacion del usuario establecido en las preferencias
+     */
     public static float getColorUsuario(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	return getColor(sharedPref.getString("color_usuario", COLOR_MARCADOR_UBICACION_ACTUAL));
     }
 
+    /**
+     * @return El color de los marcadores de los centros de salud establecido en las preferencias
+     */
     public static float getColorCentros(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	return getColor(sharedPref.getString("color_centros_salud", COLOR_MARCADOR_CENTRO_SALUD));
     }
     
+    /**
+     * @return El color del marcador del centro de salud mas cercano establecido en las preferencias
+     */
     public static float getColorCentroMasCercano(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	return getColor(sharedPref.getString("color_centro_mas_cercano", COLOR_MARCADOR_CENTRO_MAS_CERCANO));
     }
     
+    /**
+     * @return El radio de busqueda de centros de salud establecido en las preferencias
+     */
     public static double getRadio(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	return Double.parseDouble(sharedPref.getString("radio", RADIO_BUSQUEDA)) * 1000;
     }
     
+    /**
+     * @return El tipo de mapa establecido en las preferencias
+     */
     public static int getTipoMapa(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	String tipo = sharedPref.getString("tipo_mapa", TIPO_MAPA);
@@ -127,6 +162,9 @@ public class Utils {
     	return GoogleMap.MAP_TYPE_NORMAL;
     }
     
+    /**
+     * @return El modo de desplazamiento de la ruta al centro de salud establecido en las preferencias
+     */
     public static char getModoDesplazamiento(){
     	SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext);
     	String modo = sharedPref.getString("modo_desplazamiento", MODO_DESPLAZAMIENTO);
