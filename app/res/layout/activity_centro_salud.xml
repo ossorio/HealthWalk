@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/direccion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/ciudad"
+        android:layout_alignStart="@+id/ciudad"
+        android:layout_below="@+id/nombre"
+        android:layout_marginTop="17dp"
+        android:text="@string/direccion" />
+
+    <TextView
+        android:id="@+id/ciudad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/telefono"
+        android:layout_alignStart="@+id/telefono"
+        android:layout_below="@+id/direccion"
+        android:layout_marginTop="15dp"
+        android:text="@string/ciudad" />
+
+    <TextView
+        android:id="@+id/telefono"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/ciudad"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="23dp"
+        android:text="@string/telefono" />
+
+    <Button
+        android:id="@+id/llamar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/telefono"
+        android:layout_alignStart="@+id/telefono"
+        android:layout_below="@+id/telefono"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_button1"
+        android:text="@string/llamar" />
+    
+    <Button
+        android:id="@+id/ruta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/telefono"
+        android:layout_alignStart="@+id/telefono"
+        android:layout_below="@+id/llamar"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_button1"
+        android:text="@string/ruta" />
+
+    <TextView
+        android:id="@+id/nombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/direccion"
+        android:layout_alignStart="@+id/direccion"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="14dp"
+        android:text="@string/nombre"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+</RelativeLayout>

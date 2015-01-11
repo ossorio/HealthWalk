@@ -1,0 +1,69 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.asimov.healthwalk"
+    android:versionCode="1"
+    android:versionName="1.1" >
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="21" />
+
+    <!-- Permisos obligatorios -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!-- Permisos recomendados -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="com.asimov.healthwalk.permission.MAPS_RECEIVE" />
+    
+    
+    <!-- Restriccion de uso: Solo dispositivos con OpenGL ES version 2 o superior -->
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyClZa-nq1zA8dqYvPuTGdqusVv1_Tcjdog"/>
+        <activity
+            android:name=".MapActivity"
+            android:label="@string/map_activity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".CentroSaludActivity"
+            android:label="@string/centro_salud_activity"
+            android:parentActivityName=".MapActivity">
+        </activity>
+        <activity
+            android:name=".PreferenciasActivity"
+            android:label="@string/preferencias"
+            android:parentActivityName=".MapActivity">
+        </activity>
+        <activity 
+            android:name="HelpActivity"
+            android:label="@string/ayuda"
+            android:parentActivityName=".MapActivity">
+        </activity>
+        <activity 
+            android:name="AboutActivity"
+            android:label="@string/acerca"
+            android:parentActivityName=".MapActivity">
+        </activity>
+
+    </application>
+
+</manifest>

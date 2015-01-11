@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="app_name" tools:ignore="MissingTranslation">HealthWalk</string>
+    <string name="map_activity">Map of health centers</string>
+    <string name="sinDestinoMapa">Select the destination</string>
+    <string name="ubicando">Locating&#8230;</string>
+    <string name="distanciaACentroSalud">Distance: </string>
+    <string name="ubicacionActual">You are here</string>
+	<string name="clickMarcador">Click to see more</string>
+	<string name="rutaACentro">Route to health center</string>
+	<string name="ruta">Route</string>
+	<string name="miUbicacion">My location</string>
+	<string name="errorSinServicios">Google Services are not installed on this device. Install, if possible.</string>
+	<string name="errorVersionServicios">The actual version of Google Services is not compatible with this app. Upgrade, if possible.</string>
+	
+	
+    <string name="databaseError">The database could not be loaded, some localizations might be missing.</string>
+	<string name="errorCentrosSalud">The health centers could not be located</string>
+
+    <string name="centro_salud_activity">Health center info</string>
+    <string name="nombre">Name:</string>
+    <string name="ciudad">City:</string>
+    <string name="telefono">Telephone:</string>
+    <string name="direccion">Address:</string>
+    <string name="llamar">Call</string>
+    
+    <string name="preferencias">Preferences</string>
+    <string name="actualizaciones">Updatings</string>
+    <string name="tiempo_minimo">Minimum time</string>
+    <string name="tiempo_minimo_sum">Minimum time in seconds between GPS updatings</string>
+    <string name="distancia_minima">Minimum distance</string>
+    <string name="distancia_minima_sum">Minimum distance in meters that will fire a GPS updating</string>
+    <string name="prioridad">Priority</string>
+    <string name="prioridad_sum">Priority that the GPS updating will follow</string>
+    <string-array name="prioridades">
+        <item>Balanced power-accuracy</item>
+        <item>High accuracy</item>
+        <item>Low power</item>
+        <item>No power</item>
+    </string-array>
+    <string-array name="prioridades_valores">
+        <item>PRIORITY_BALANCED_POWER_ACCURACY</item>
+        <item>PRIORITY_HIGH_ACCURACY</item>
+        <item>PRIORITY_LOW_POWER</item>
+        <item>PRIORITY_NO_POWER</item>
+    </string-array>
+    <string name="mapa">Map</string>
+    <string name="radio">Radius of search</string>
+    <string name="radio_sum">Maximum distance in km between your current location and a health center</string>
+    <string name="tipo_mapa">Type of map</string>
+    <string-array name="tipos_mapa">
+        <item>Hybrid</item>
+        <item>None</item>
+        <item>Normal</item>
+        <item>Satellite</item>
+        <item>Terrain</item>
+    </string-array>
+    <string-array name="tipos_mapa_valores">
+        <item>MAP_TYPE_HYBRID</item>
+        <item>MAP_TYPE_NONE</item>
+        <item>MAP_TYPE_NORMAL</item>
+        <item>MAP_TYPE_SATELLITE</item>
+        <item>MAP_TYPE_TERRAIN</item>
+    </string-array>
+    <string name="color_usuario">User color</string>
+    <string name="color_usuario_sum">Color of the user current position</string>
+    <string name="color_centros">Health center color</string>
+    <string name="color_centros_sum">Color of all the health center markers</string>
+    <string name="color_centro_mas_cercano">Color of the nearest health center</string>
+    <string-array name="colores">
+        <item>Azure</item>
+        <item>Green</item>
+        <item>Magenta</item>
+        <item>Orange</item>
+        <item>Red</item>
+        <item>Violet</item>
+        <item>Yellow</item>
+    </string-array>
+    <string-array name="colores_valores">
+        <item>HUE_AZURE</item>
+        <item>HUE_GREEN</item>
+        <item>HUE_MAGENTA</item>
+        <item>HUE_ORANGE</item>
+        <item>HUE_RED</item>
+        <item>HUE_VIOLET</item>
+        <item>HUE_YELLOW</item>
+    </string-array>
+    <string name="modo_desplazamiento">Mode of transport</string>
+    <string name="modo_desplazamiento_sum">Walking, Driving or Public Transport</string>
+        <string-array name="modos_desplazamiento">
+        <item>Walking</item>
+        <item>Driving</item>
+        <item>Public transport</item>
+    </string-array>
+    <string-array name="modos_desplazamiento_valores">
+        <item>ANDANDO</item>
+        <item>COCHE</item>
+        <item>TRANSPORTE_PUBLICO</item>
+   </string-array>
+        
+    <string name="acerca">About</string>
+    <string name="acerca_de_info">HealthWalk is an application for mobile devices with Android OS. \n
+It is developed by Alejandro Lopez Espinosa, Oscar Gonzalez Ossorio and Stoyan Veselinov Andreev for the subject Sistemas Móviles of the Superior School of Computer Engineering in Valladolid, Spain.\n
+The app uses the google maps API in order to show the location of the user, and all of the nearby medical centers that surround the user in a specific radius measured in meters.\n
+The oldest API version with which the app functions is 16 (Android 4.1, 4.1.1 - Jelly Bean), and the target API version is the latest, 21 (Android 5.0 LOLLIPOP).\n
+It is implemented in Java, and three natural languages: English, Spanish and Bulgarian.\n
+The target audience of HealthWalk are people with medical emergencies or people who are not familiar with their surroundings and do not know where the nearest medical center is.\n
+</string>
+       				  
+    <string name="ayuda">Help</string>
+    <string name="ayuda_inicial">When you open HealthWalk the first thing you will see is your own location marked with a green color.
+The next things you will notice are all the medical centers in red, and the nearest one in blue.\n
+You can zoom in and out on the map whenever you like.\n
+When you choose a medical center you will be shown the name, address, city and telephone number of the center, along with two buttons, Route and Call.\n
+If you press Route the app will show you the fastest way to get there and the distance in between.
+If you press Call the app will automatically dial the medical center you have chosen.\n
+To access the preferences click on the preferences icon on the upper right corner and choose the option you wish to modify.\n
+Every optcion available for modification is explained clearly with a smaller text under the option name in the preferences menu.\n
+These options are divided in three groups for a better understanding: Updatings, Map and Route.\n </string>
+</resources>
