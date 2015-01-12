@@ -43,6 +43,7 @@
         android:layout_alignStart="@+id/telefono"
         android:layout_below="@+id/telefono"
         android:layout_marginTop="16dp"
+        android:background="@drawable/custom_button1"
         android:text="@string/llamar" />
     
     <Button
@@ -53,6 +54,7 @@
         android:layout_alignStart="@+id/telefono"
         android:layout_below="@+id/llamar"
         android:layout_marginTop="16dp"
+        android:background="@drawable/custom_button1"
         android:text="@string/ruta" />
 
     <TextView

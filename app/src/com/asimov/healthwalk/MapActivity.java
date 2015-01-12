@@ -214,6 +214,8 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
 	
 	/**
 	 * Si se pulsa en el icono de preferencias, se cargan en una nueva actividad
+	 * Si se pulsa en el icono de ayuda, se carga en una nueva actividad
+	 * Si se pulsa en el icono de acerca de, se carga en una nueva actividad
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item){
@@ -223,10 +225,19 @@ public class MapActivity extends FragmentActivity implements ObservadorLocalizac
             	startActivity(intent);
             	cambiosEnPreferencias = true;
             	return true;
+            case R.id.ayuda_menu:
+            	Intent intent32 = new Intent(this, HelpActivity.class);
+            	startActivity(intent32);
+            	return true;
+            case R.id.acerca_menu:
+            	Intent intent33 = new Intent(this, AboutActivity.class);
+            	startActivity(intent33);
+            	return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
 	}
+	
 	
 	/**
 	 * Lo llama el LocalizadorUsuario cuando existe una nueva localizacion disponible,

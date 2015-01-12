@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="app_name" >HealthWalk</string>
+    <string name="map_activity">Карта на Медицински центрове</string>
+    <string name="sinDestinoMapa">Избери дестинация</string>
+    <string name="ubicando">Локализиране&#8230;</string>
+    <string name="distanciaACentroSalud">Разстояние </string>
+    <string name="ubicacionActual">Вие сте тук</string>
+	<string name="clickMarcador">Натиснете за да видите още</string>
+	<string name="rutaACentro">Път до медицинския център</string>
+	<string name="ruta">Път</string>
+	<string name="miUbicacion">Моето местоположение</string>
+	<string name="errorSinServicios">Google Services не са инсталирани на този апарат. Инсталирайте ги, ако е възможно.</string>
+	<string name="errorVersionServicios">Актуалната версия на Google Services не е съвместима с тази апликация. Обновете ако е възможно.</string>
+	
+	
+    <string name="databaseError">Базата на данни не успя да зареди, някои местоположения може да липсват.</string>
+	<string name="errorCentrosSalud">Медицинските центрове на можаха да бъдат намерени.</string>
+
+    <string name="centro_salud_activity">Информация за медицинския център</string>
+    <string name="nombre">Име:</string>
+    <string name="ciudad">Град:</string>
+    <string name="telefono">Телефон:</string>
+    <string name="direccion">Адрес:</string>
+    <string name="llamar">Обаждане</string>
+    
+    <string name="preferencias">Настройки</string>
+    <string name="actualizaciones">Обновявания</string>
+    <string name="tiempo_minimo">Минимално време</string>
+    <string name="tiempo_minimo_sum">Минимално време в секунди между обновяванията на GPS-a.</string>
+    <string name="distancia_minima">Минимално разстояние</string>
+    <string name="distancia_minima_sum">Минимално разстояние в метри което ще стартира обновяване на GPS-a.</string>
+    <string name="prioridad">Приоритет</string>
+    <string name="prioridad_sum">Приоритет който ще следва GPS-a за обновяването.</string>
+    <string-array name="prioridades">
+        <item>Балансирана точност-батерията</item>
+        <item>Висока точност</item>
+        <item>Ниска батерия</item>
+        <item>Никаква батерия</item>
+    </string-array>
+    <string-array name="prioridades_valores">
+        <item>PRIORITY_BALANCED_POWER_ACCURACY</item>
+        <item>PRIORITY_HIGH_ACCURACY</item>
+        <item>PRIORITY_LOW_POWER</item>
+        <item>PRIORITY_NO_POWER</item>
+    </string-array>
+    <string name="mapa">Карта</string>
+    <string name="radio">Радиус на търсене</string>
+    <string name="radio_sum">Максимално разстояние в километри между сегашното ви местоположение и медицинския център.</string>
+    <string name="tipo_mapa">Тип карта</string>
+    <string-array name="tipos_mapa">
+        <item>Хибрид</item>
+        <item>Никаква</item>
+        <item>Нормална</item>
+        <item>Сателит</item>
+        <item>Приземна</item>
+    </string-array>
+    <string-array name="tipos_mapa_valores">
+        <item>MAP_TYPE_HYBRID</item>
+        <item>MAP_TYPE_NONE</item>
+        <item>MAP_TYPE_NORMAL</item>
+        <item>MAP_TYPE_SATELLITE</item>
+        <item>MAP_TYPE_TERRAIN</item>
+    </string-array>
+    <string name="color_usuario">Потребителски цвят</string>
+    <string name="color_usuario_sum">Цвят на сегашното местоположение на потребителя</string>
+    <string name="color_centros">Цвят на медицинския център</string>
+    <string name="color_centros_sum">Цвят на маркерите на всички медицински центрове</string>
+    <string name="color_centro_mas_cercano">Цвят на най-близкия медицински център</string>
+    <string-array name="colores">
+        <item>Синьо</item>
+        <item>Зелено</item>
+        <item>Розово</item>
+        <item>Оранжево</item>
+        <item>Черверно</item>
+        <item>Лилаво</item>
+        <item>Жълто</item>
+    </string-array>
+    <string-array name="colores_valores">
+        <item>HUE_AZURE</item>
+        <item>HUE_GREEN</item>
+        <item>HUE_MAGENTA</item>
+        <item>HUE_ORANGE</item>
+        <item>HUE_RED</item>
+        <item>HUE_VIOLET</item>
+        <item>HUE_YELLOW</item>
+    </string-array>
+    <string name="modo_desplazamiento">Начин на транспорт</string>
+    <string name="modo_desplazamiento_sum">Вървене, Шофиране или Публичен транспорт.</string>
+        <string-array name="modos_desplazamiento">
+        <item>Вървене</item>
+        <item>Шофиране</item>
+        <item>Публичен транспорт</item>
+    </string-array>
+    <string-array name="modos_desplazamiento_valores">
+        <item>ANDANDO</item>
+        <item>COCHE</item>
+        <item>TRANSPORTE_PUBLICO</item>
+   </string-array>
+        
+    <string name="acerca">About</string>
+    <string name="acerca_de_info"> HealthWalk е апликация за мобилни апарати с операционна система Android.\n
+Разработена е от Алехандро Лопез Еспиноса, Оскар Гонзалез Оссорио и Стоян Веселинов Андреев за предмета Мобилни Системи от Върховния Университет по Компютърно Инжинерство във Ваядолид, Испания.\n
+Апликацията използва Google Maps API за да покаже местоположението на потребителя, и на всички близки медицински центрове които обкръжават потребителя в конкретен радиус измерван в метри.\n        
+Най-старата API версия с която апликацията работи е 16 (Android 4.1, 4.1.1 - Jelly Bean), и желаната версия е последната до момента, 21 (Android 5.0 LOLLIPOP).\n
+Разработена е с Java, и три натурални езика: Английски, Испански и Български.\n
+Публиката към която апликацията е насочена са хора със спешни медицински проблеми или хора които не са запознати с околността и не знят къде е най близкия медицински център.\n
+</string>
+       				  
+    <string name="ayuda">Help</string>
+    <string name="ayuda_inicial">Когато отворите HealthWalk първото нещо което ще видите е собственотоо си местоположение маркирано в зелен цвят.\n
+Следващите неща които ще видите са всичките медицински центрове в червено, и най-близкия в синьо.\n        
+Можете да приближавате и да отдалечавате картата когато пожелаете.\n
+Когато изберете медицински център ще видите името, адреса, града и телефона на медицинския център, също както и два бутона, Път и Обаждане.\n
+Ако натиснете Път апликацията ще ви покаже най-краткия път до медицинския център и разстоянието до него.\n
+Ако натиснете Обаждане апликацията автоматично ще набере номера на медицинския център който сте избрали.\n
+За да влезете в настройките натиснете иконата на която пише Настройки в горния десен ъгъл и изберете настройката която искате да промените.\n
+Всяка настройка възможна за модифициране е обяснена кратко и ясно с по малък текст под името на настройката в менюто на настройките.\n
+Тези настройки за разделени в три групи за по-ясно разбиране: Обновяване, Карта и Път.\n</string>
+    
+</resources>

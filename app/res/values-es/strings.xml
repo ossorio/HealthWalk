@@ -99,5 +99,22 @@
     </string-array>
         
     <string name="acerca">Acerca de&#8230;</string>
+    <string name="acerca_de_info">HealthWalk es una aplicación para dispositivos móviles con SO Android.\n
+Ha sido desarrollada por Alejandro Lopez Espinosa, Oscar Gonzalez Ossorio y Stoyan Veselinov Andreev para la asignatura Sistemas Móviles de la Escuela Técnica Superior de Ingeniería Informática de Valladolid, España.\n
+La aplicación usa el API de google maps para mostrar la locaclización del usuario, y de todos los centros médicos cercanos que rodean al usuario en un radio específico medido en metros.\n
+La versión mas antigua del API con el que la aplicación funciona es la 16 (Android 4.1, 4.1.1 - Jelly Bean), y la versión a la que esta destinada es la última, 21 (Android 5.0 LOLLIPOP).\n
+Esta implementada en Java, y 3 lenguajes Naturales: Inglés, Español y Búlgaro.\n
+El público al que va destinada la aplicación son personas que tiene urgencias médicas o personas que no son familiares con su entorno y no saben donde está el centro médico más cercano.\n
+</string>
+    
     <string name="ayuda">Ayuda</string>
+    <string name="ayuda_inicial">Cuando inicie HealthWalk lo primero que verá es su propia localización marcada con un color verde.\n
+Lo siguiente que verá serán los todos centros médicos en rojo, y el más cercano en azul.\n
+Puede acercar o alejar el mapa cuando quiera.\n        
+Cuando seleccione un centro médico se le mostrará el nombre, dirección, ciudad y teléfono del centro, junto con dos botones, Ruta y Llamar.\n
+Si pula Ruta la aplicación le mostrará el camino más rápido y la distancia que hay hasta el centro.\n
+Si pulsa Llamar la aplicación marcará automáticamente el teléfono del centro médico que haya elegido.\n
+Para acceder a las preferencias pulse sobre el icno de preferencias en la esquina superior derecha y elija la opción que desea modificar.\n
+Cada opción disponible para modificación está explicada de forma clara con un texto más pequeño debajo del nombre de la opción en el menú de preferencias.\n
+Estas opciones están divididas en tres grupos para un entendimiento mejor: Actualizaciones, Mapa y Ruta.\n</string>
 </resources>

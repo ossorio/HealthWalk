@@ -34,7 +34,7 @@
     <string name="prioridad">Priority</string>
     <string name="prioridad_sum">Priority that the GPS updating will follow</string>
     <string-array name="prioridades">
-        <item>Balanced power accuracy</item>
+        <item>Balanced power-accuracy</item>
         <item>High accuracy</item>
         <item>Low power</item>
         <item>No power</item>
@@ -99,6 +99,23 @@
         <item>TRANSPORTE_PUBLICO</item>
    </string-array>
         
-    <string name="acerca">About&#8230;</string>
+    <string name="acerca">About</string>
+    <string name="acerca_de_info">HealthWalk is an application for mobile devices with Android OS. \n
+It is developed by Alejandro Lopez Espinosa, Oscar Gonzalez Ossorio and Stoyan Veselinov Andreev for the subject Sistemas Móviles of the Superior School of Computer Engineering in Valladolid, Spain.\n
+The app uses the google maps API in order to show the location of the user, and all of the nearby medical centers that surround the user in a specific radius measured in meters.\n
+The oldest API version with which the app functions is 16 (Android 4.1, 4.1.1 - Jelly Bean), and the target API version is the latest, 21 (Android 5.0 LOLLIPOP).\n
+It is implemented in Java, and three natural languages: English, Spanish and Bulgarian.\n
+The target audience of HealthWalk are people with medical emergencies or people who are not familiar with their surroundings and do not know where the nearest medical center is.\n
+</string>
+       				  
     <string name="ayuda">Help</string>
+    <string name="ayuda_inicial">When you open HealthWalk the first thing you will see is your own location marked with a green color.
+The next things you will notice are all the medical centers in red, and the nearest one in blue.\n
+You can zoom in and out on the map whenever you like.\n
+When you choose a medical center you will be shown the name, address, city and telephone number of the center, along with two buttons, Route and Call.\n
+If you press Route the app will show you the fastest way to get there and the distance in between.
+If you press Call the app will automatically dial the medical center you have chosen.\n
+To access the preferences click on the preferences icon on the upper right corner and choose the option you wish to modify.\n
+Every optcion available for modification is explained clearly with a smaller text under the option name in the preferences menu.\n
+These options are divided in three groups for a better understanding: Updatings, Map and Route.\n </string>
 </resources>
